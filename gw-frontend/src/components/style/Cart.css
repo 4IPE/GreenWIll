@@ -1,0 +1,87 @@
+/* Основной стиль для страницы Корзины */
+.cart {
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    color: #2e7d32;
+    text-align: center;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f2f5f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.cart-item:hover {
+    transform: scale(1.02);
+}
+
+.item-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.item-price {
+    color: #6e8b6a;
+}
+
+.item-quantity button {
+    background-color: #6e8b6a;
+    color: white;
+    padding: 5px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.item-quantity button:hover {
+    background-color: #2e7d32;
+}
+
+.delete-icon {
+    color: #c0392b;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.delete-icon:hover {
+    transform: scale(1.2);
+}
+
+.cart-summary {
+    margin-top: 20px;
+    background-color: #6e8b6a;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.checkout-button {
+    background-color: #2e7d32;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.checkout-button:hover {
+    background-color: #245c25;
+}

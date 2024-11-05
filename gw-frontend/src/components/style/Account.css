@@ -1,0 +1,60 @@
+/* Основной стиль для страницы Личного Кабинета */
+.account {
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    color: #2e7d32;
+    text-align: center;
+}
+
+.account-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: fadeInDown 1s ease;
+}
+
+.account-icon {
+    font-size: 3rem;
+    color: #6e8b6a;
+}
+
+.account-info, .account-orders, .account-actions {
+    background-color: #f2f5f1;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.account-info:hover, .account-orders:hover, .account-actions:hover {
+    transform: scale(1.02);
+}
+
+.logout-button {
+    background-color: #2e7d32;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #245c25;
+}
+
+@media (max-width: 768px) {
+    .account {
+        flex-direction: column; /* Перестраиваем иконку над ником */
+        align-items: center;
+        text-align: center;
+    }
+
+    .account-header {
+        margin-top: 5px;
+        font-size: 1.2rem; /* Размер шрифта ника */
+    }
+}
