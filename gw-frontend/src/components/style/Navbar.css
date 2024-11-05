@@ -1,0 +1,88 @@
+/* Основной стиль Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #f2f5f1; /* Цвет фона, чтобы соответствовать стилю */
+    color: #2e7d32;
+    font-family: 'Playfair Display', serif;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar-item {
+    color: #2e7d32;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.navbar-item:hover {
+    color: #6e8b6a;
+}
+
+.navbar-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar-icons svg {
+    color: #2e7d32;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Гамбургер для мобильных устройств */
+.navbar-hamburger {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .navbar-menu {
+        display: none;
+    }
+
+    .navbar-menu.open {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: absolute;
+        top: 60px;
+        right: 10px;
+        background-color: #f5f5f0;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-hamburger {
+        display: block;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 10px 20px;
+    }
+
+    .navbar-logo {
+        font-size: 1.2rem;
+    }
+
+    .navbar-icons svg {
+        font-size: 1.2rem;
+    }
+}

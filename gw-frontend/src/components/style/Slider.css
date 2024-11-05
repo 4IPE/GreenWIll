@@ -1,0 +1,100 @@
+/* Основной стиль для слайдера */
+.slider-container {
+    position: relative;
+    width: 95%; /* Уменьшение боковых отступов */
+    max-width: 2400px;
+    margin: 0 auto;
+    margin-top :1%;
+    margin-bottom:1%;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: #f2f5f1; /* Цвет фона, чтобы соответствовать стилю */
+}
+
+.slider-content {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slider-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.slider-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 80%;
+    font-family: 'Playfair Display', serif;
+}
+
+.slider-overlay h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.slider-overlay p {
+    margin-top: 10px;
+    font-size: 1rem;
+}
+
+/* Кнопки навигации */
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.slider-prev {
+    left: 10px;
+}
+
+.slider-next {
+    right: 10px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .slider-image {
+        height: 300px;
+    }
+    
+    .slider-overlay h2 {
+        font-size: 1.5rem;
+    }
+
+    .slider-overlay p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .slider-image {
+        height: 250px;
+    }
+    
+    .slider-overlay {
+        padding: 10px;
+    }
+
+    .slider-overlay h2 {
+        font-size: 1.2rem;
+    }
+
+    .slider-overlay p {
+        font-size: 0.8rem;
+    }
+}
