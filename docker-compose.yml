@@ -1,0 +1,85 @@
+services:
+
+  gw-client:
+    build: gw-client
+    image: client-img
+    container_name: client-con
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gw-server
+      - gw-kafka
+      - gw-frontend
+      - gw-reddis
+    networks:
+      - gw-network
+    restart: "on-failure"
+
+  gw-frontend:
+    build: gw-frontend
+    image: frontend-img
+    container_name: frontend-con
+    ports:
+      - "3000:80"
+    networks:
+      - gw-network
+    restart: "on-failure"
+
+  gw-server:
+    build: gw-server
+    image: server-img
+    container_name: server-con
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://gw-db:5432/gw-data
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 12345
+    depends_on:
+      - gw-db
+    restart: "on-failure"
+
+  gw-db:
+    image: postgres:16.1
+    container_name: db-con
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=sast-data
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    volumes:
+      - sast-db-data:/var/lib/postgresql/data
+    restart: "on-failure"
+
+
+  gw-kafka:
+    build: gw-kafka
+    image: kafka-img
+    container_name: broker-con
+    ports:
+      - "7070:7070"
+    depends_on:
+      - gw-client
+    restart: "on-failure"
+
+  gw-reddis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    restart: "on-failure"
+
+volumes:
+  gw-db-data:
+networks:
+  gw-network:
+    driver: bridge
+
