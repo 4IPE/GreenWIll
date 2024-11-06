@@ -1,4 +1,4 @@
-package ru.GreenWill;
+package ru.GreenWill.server;
 
 /**
  * Hello world!

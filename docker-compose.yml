@@ -47,7 +47,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=12345
       - POSTGRES_USER=admin
-      - POSTGRES_DB=sast-data
+      - POSTGRES_DB=gw-data
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
