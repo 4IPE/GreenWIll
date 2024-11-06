@@ -1,9 +1,12 @@
-import React, {useState} from "react";
+// src/components/FullMenu.js
+import React, { useState } from "react";
 import menuItems from "./data/menuItems"; // Массив данных блюд
 import "./style/FullMenu.css";
+import ProductModal from './ProductModal';
 
 const FullMenu = () => {
     const [selectedCategory, setSelectedCategory] = useState("Все");
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     // Получаем уникальные категории из массива данных
     const categories = ["Все", ...new Set(menuItems.map((item) => item.category))];
@@ -13,6 +16,14 @@ const FullMenu = () => {
         selectedCategory === "Все"
             ? menuItems
             : menuItems.filter((item) => item.category === selectedCategory);
+
+    const openModal = (product) => {
+        setSelectedProduct(product);
+    };
+
+    const closeModal = () => {
+        setSelectedProduct(null);
+    };
 
     return (
         <>
@@ -36,7 +47,7 @@ const FullMenu = () => {
                 {/* Основная часть с блюдами */}
                 <section className="menu-items-grid">
                     {filteredItems.map((item) => (
-                        <div className="menu-item" key={item.id}>
+                        <div className="menu-item" key={item.id} onClick={() => openModal(item)}>
                             <img src={item.image} alt={item.name} className="menu-img"/>
                             <div className="menu-info">
                                 <h3>{item.name}</h3>
@@ -47,6 +58,11 @@ const FullMenu = () => {
                     ))}
                 </section>
             </div>
+
+            {/* Модальное окно */}
+            {selectedProduct && (
+                <ProductModal product={selectedProduct} onClose={closeModal} />
+            )}
         </>
     );
 };

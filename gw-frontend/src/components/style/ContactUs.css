@@ -1,0 +1,49 @@
+/* ContactUs.css */
+.contact-container {
+    padding: 20px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.contact-title {
+    font-size: 2rem;
+    color: #2e7d32;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-input, .contact-textarea {
+    padding: 10px;
+    border: 1px solid #d7e9d3;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.contact-button {
+    padding: 12px;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.contact-success {
+    color: #2e7d32;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

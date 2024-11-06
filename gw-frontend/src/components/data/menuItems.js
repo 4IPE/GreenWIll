@@ -12,7 +12,7 @@ const menuItems = [
       id: 1,
       name: "Зеленый смузи",
       description: "Освежающий зеленый смузи с огурцом и шпинатом.",
-      price: "€5.99",
+      price: "5.99",
       category: "Смузи",
       image: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg"
     },
@@ -20,7 +20,7 @@ const menuItems = [
       id: 2,
       name: "Салат из киноа",
       description: "Питательный салат с киноа, овощами и орехами.",
-      price: "€7.99",
+      price: "7.99",
       category: "Салаты",
       image: "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg"
     },
@@ -28,7 +28,7 @@ const menuItems = [
         id: 3,
         name: "Салат из киноа",
         description: "Питательный салат с киноа, овощами и орехами.",
-        price: "€7.99",
+        price: "7.99",
         category: "Салаты",
         image: "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg"
       },
@@ -36,7 +36,7 @@ const menuItems = [
         id: 4,
         name: "Салат из киноа",
         description: "Питательный салат с киноа, овощами и орехами.",
-        price: "€7.99",
+        price: "7.99",
         category: "Салаты",
         image: "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg"
       },
@@ -44,7 +44,7 @@ const menuItems = [
         id: 5,
         name: "Салат из киноа",
         description: "Питательный салат с киноа, овощами и орехами.",
-        price: "€7.99",
+        price: "7.99",
         category: "Салаты",
         image: "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg"
       },
@@ -52,7 +52,7 @@ const menuItems = [
         id: 6,
         name: "Салат из киноа",
         description: "Питательный салат с киноа, овощами и орехами.",
-        price: "€7.99",
+        price: "7.99",
         category: "Салаты",
         image: "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg"
       },
