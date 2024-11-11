@@ -1,4 +1,15 @@
+version: '3.7'
+
 services:
+  eureka-server:
+    image: eurekaserver-img
+    build: eurekaserver
+    container_name: eurekaserver-con
+    ports:
+      - "8761:8761"
+    networks:
+      - gw-network
+    restart: "on-failure"
 
   gw-client:
     build: gw-client
@@ -11,6 +22,7 @@ services:
       - gw-kafka
       - gw-frontend
       - gw-reddis
+      - eureka-server
     networks:
       - gw-network
     restart: "on-failure"
@@ -37,6 +49,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: 12345
     depends_on:
       - gw-db
+      - eureka-server
+    networks:
+      - gw-network
     restart: "on-failure"
 
   gw-db:
@@ -56,7 +71,6 @@ services:
     volumes:
       - sast-db-data:/var/lib/postgresql/data
     restart: "on-failure"
-
 
   gw-kafka:
     build: gw-kafka
@@ -79,7 +93,7 @@ services:
 
 volumes:
   gw-db-data:
+
 networks:
   gw-network:
     driver: bridge
-

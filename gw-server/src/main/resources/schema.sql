@@ -45,7 +45,13 @@ CREATE TABLE IF NOT EXISTS cart_items (
         );
 
 
-
+CREATE TABLE IF NOT EXISTS orders (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL,
+        cart_id BIGINT NOT NULL UNIQUE,
+        FOREIGN KEY(user_id) REFERENCES users(id),
+        FOREIGN KEY(cart_id) REFERENCES carts(id)
+        );
 
 
 CREATE TABLE IF NOT EXISTS history (
