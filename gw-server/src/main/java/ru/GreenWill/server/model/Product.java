@@ -1,6 +1,7 @@
 package ru.GreenWill.server.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Table(name = "products")
 @Getter
 @Setter
+@AllArgsConstructor
 public class Product {
 
     @Id

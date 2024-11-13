@@ -1,46 +1,36 @@
 version: '3.7'
 
 services:
-  eureka-server:
-    image: eurekaserver-img
-    build: eurekaserver
-    container_name: eurekaserver-con
-    ports:
-      - "8761:8761"
-    networks:
-      - gw-network
-    restart: "on-failure"
 
   gw-client:
     build: gw-client
-    image: client-img
-    container_name: client-con
+    image: gw-client-img
+    container_name: gw-client-con
     ports:
       - "8080:8080"
     depends_on:
       - gw-server
-      - gw-kafka
+#      - gw-kafka
       - gw-frontend
-      - gw-reddis
-      - eureka-server
+#      - gw-reddis
     networks:
       - gw-network
-    restart: "on-failure"
+#    restart: "on-failure"
 
   gw-frontend:
     build: gw-frontend
-    image: frontend-img
-    container_name: frontend-con
+    image: gw-frontend-img
+    container_name: gw-frontend-con
     ports:
       - "3000:80"
     networks:
       - gw-network
-    restart: "on-failure"
+#    restart: "on-failure"
 
   gw-server:
     build: gw-server
-    image: server-img
-    container_name: server-con
+    image: gw-server-img
+    container_name: gw-server-con
     ports:
       - "9090:9090"
     environment:
@@ -49,14 +39,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: 12345
     depends_on:
       - gw-db
-      - eureka-server
     networks:
       - gw-network
-    restart: "on-failure"
+#    restart: "on-failure"
 
   gw-db:
     image: postgres:16.1
-    container_name: db-con
+    container_name: gw-db-con
     ports:
       - "6542:5432"
     environment:
@@ -69,17 +58,17 @@ services:
       interval: 5s
       retries: 10
     volumes:
-      - sast-db-data:/var/lib/postgresql/data
-    restart: "on-failure"
+      - gw-db-data:/var/lib/postgresql/data
+    networks:
+      - gw-network
+#    restart: "on-failure"
 
   gw-kafka:
     build: gw-kafka
-    image: kafka-img
-    container_name: broker-con
+    image: gw-kafka-img
+    container_name: gw-kafka-con
     ports:
       - "7070:7070"
-    depends_on:
-      - gw-client
     restart: "on-failure"
 
   gw-reddis:
@@ -89,7 +78,9 @@ services:
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
-    restart: "on-failure"
+#    restart: "on-failure"
+    networks:
+      - gw-network
 
 volumes:
   gw-db-data:
