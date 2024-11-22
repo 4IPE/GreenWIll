@@ -1,6 +1,6 @@
 // src/hooks/useMenuItems.js
 import { useState, useEffect } from "react";
-import { fetchMenuItems } from "./menuService";
+import { fetchMenuData } from "./menuService";
 
 const useMenuItems = () => {
     const [menuItems, setMenuItems] = useState([]);
@@ -10,7 +10,7 @@ const useMenuItems = () => {
     useEffect(() => {
         const loadMenuItems = async () => {
             try {
-                const data = await fetchMenuItems();
+                const data = await fetchMenuData();
                 setMenuItems(data);
                 setLoading(false);
             } catch (err) {

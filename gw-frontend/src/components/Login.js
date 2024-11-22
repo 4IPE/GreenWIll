@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, {useState} from 'react';
+import {Link} from 'react-router-dom';
 import './style/Login.css';
-import apiClient from './config/axiosConfig';
+import apiClient from "./config/axiosConfig";
 
 
 const Login = () => {

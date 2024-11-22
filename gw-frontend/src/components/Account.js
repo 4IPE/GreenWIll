@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./style/Account.css";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import apiClient from './config/axiosConfig';
+import apiClient from "./config/axiosConfig";
+
 
 const Account = () => {
     const [username, setUsername] = useState(null); // Имя пользователя
