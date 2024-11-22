@@ -1,10 +1,10 @@
-// src/components/FullMenu.js
 import React, { useState } from "react";
-import menuItems from "./data/menuItems"; // Массив данных блюд
+import useMenuItems from "./data/useMenuItems"; // Импортируем кастомный хук
 import "./style/FullMenu.css";
 import ProductModal from './ProductModal';
 
 const FullMenu = () => {
+    const { menuItems, loading, error } = useMenuItems(); // Используем кастомный хук
     const [selectedCategory, setSelectedCategory] = useState("Все");
     const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -24,6 +24,14 @@ const FullMenu = () => {
     const closeModal = () => {
         setSelectedProduct(null);
     };
+
+    if (loading) {
+        return <p>Загрузка меню...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
 
     return (
         <>
@@ -52,7 +60,7 @@ const FullMenu = () => {
                             <div className="menu-info">
                                 <h3>{item.name}</h3>
                                 <p>{item.description}</p>
-                                <span>{item.price}</span>
+                                <span>{item.price} ₽</span>
                             </div>
                         </div>
                     ))}
