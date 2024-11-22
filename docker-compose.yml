@@ -21,7 +21,7 @@ services:
     image: gw-frontend-img
     container_name: gw-frontend-con
     ports:
-      - "3000:3000"
+      - "3000:80"
     networks:
       - gw-network
 #    restart: "on-failure"

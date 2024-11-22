@@ -1,30 +1,25 @@
 /**
  * Интерфейс UserService предоставляет методы для управления пользователями.
  * Обеспечивает функциональность для сохранения и обновления данных пользователей.
- *
+ * <p>
  * Created by Daniil in 2024.
  */
 
 package ru.GreenWill.server.service;
 
 
-import ru.GreenWill.Dto.model.User.UserDto;
-import ru.GreenWill.Dto.model.User.UserOutDto;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import ru.GreenWill.server.model.User;
 
 public interface UserService {
 
-    /**
-     * Сохраняет нового пользователя.
-     *
-     * @param object данные пользователя в виде DTO
-     * @return сохранённый пользователь в виде DTO
-     */
-    UserOutDto saveUser(UserDto object);
+    User getUserByUsername(String token);
 
-    /**
-     * Обновляет данные существующего пользователя.
-     *
-     * @param object данные пользователя в виде DTO
-     */
-    void updateUser(UserDto object);
+    UserDetailsService userDetailsService();
+
+    @Transactional
+    void save(User user);
+
+    User getUserName(String token);
 }

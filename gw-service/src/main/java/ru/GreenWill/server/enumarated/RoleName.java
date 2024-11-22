@@ -12,6 +12,6 @@ package ru.GreenWill.server.enumarated;
  * @since 2024
  */
 public enum RoleName {
-    ADMIN,
-    USER
+    ROLE_ADMIN,
+    ROLE_USER
 }

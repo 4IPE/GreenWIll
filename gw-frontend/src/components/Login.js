@@ -1,15 +1,32 @@
-// src/pages/Login.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './style/Login.css';
+import apiClient from './config/axiosConfig';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Логика авторизации
+        setError(null);
+
+        try {
+            const response = await apiClient.post('/auth/login', {
+                username: email,
+                password: password,
+            });
+            // Успешный вход
+            console.log('Login successful:', response.data);
+            console.log(document.cookie);
+            // Перенаправление или другие действия после успешного входа
+        } catch (err) {
+            // Ошибка авторизации
+            setError(err.response?.data?.message || 'Login failed. Please try again.');
+        }
     };
 
     return (
@@ -40,6 +57,7 @@ const Login = () => {
                             required
                         />
                     </div>
+                    {error && <p className="error-message">{error}</p>}
                     <button type="submit" className="login-button">Login</button>
                 </form>
                 <div className="login-footer">

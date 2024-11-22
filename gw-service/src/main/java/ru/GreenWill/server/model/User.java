@@ -1,31 +1,24 @@
 package ru.GreenWill.server.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-/**
- * Класс, представляющий пользователя в системе.
- *
- * <p>Пользователь может иметь несколько ролей и проектов. Каждая роль и проект
- * связаны с пользователем через соответствующие таблицы.</p>
- *
- * @author Даниил
- * @version 1.0
- * @since 2024
- */
+
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
-public class User {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User implements UserDetails {
 
-    /**
-     * Уникальный идентификатор пользователя.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,23 +29,39 @@ public class User {
     @Column
     private String username;
 
-    /**
-     * Пароль пользователя для аутентификации.
-     *
-     * <p>Рекомендуется хранить пароль в зашифрованном виде.</p>
-     */
     @Column
     private String password;
 
-    /**
-     * Множество ролей, назначенных пользователю.
-     * Связь осуществляется через таблицу "roles_users".
-     */
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "roles_users",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> (GrantedAuthority) () -> role.getRole().toString())
+                .collect(Collectors.toSet());
+    }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

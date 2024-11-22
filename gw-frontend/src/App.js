@@ -16,6 +16,7 @@ import Instructions from "./components/Instructions";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import SiteMap from "./components/SiteMap";
 import Subscriptions from "./components/Subscriptions";
+import Register from "./components/Register";
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/menu" element={<FullMenu />} />
+                        <Route path="/register" element={<Register/>} />
                         <Route path="/about" element={<AboutUs />} />
                         <Route path="/profile" element={<Account />} />
                         <Route path="/cart" element={<Cart />} />

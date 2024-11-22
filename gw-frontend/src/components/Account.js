@@ -1,33 +1,61 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./style/Account.css";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import apiClient from './config/axiosConfig';
 
 const Account = () => {
+    const [username, setUsername] = useState(null); // Имя пользователя
+    const [error, setError] = useState(null); // Ошибки
+    const navigate = useNavigate();
+
+    // Функция выхода из аккаунта
+    const handleLogout = async () => {
+        try {
+            await apiClient.post("/logout", {}, { withCredentials: true });
+            navigate("/login");
+        } catch (err) {
+            console.error("Ошибка при выходе:", err);
+        }
+    };
+
+    // Получение имени пользователя при загрузке компонента
+    useEffect(() => {
+        const fetchUsername = async () => {
+            try {
+                const response = await apiClient.get("/user/get", { withCredentials: true });
+                setUsername(response.data.username); // Устанавливаем username
+            } catch (err) {
+                if (err.response && err.response.status === 401) {
+                    // Пользователь не авторизован, перенаправляем на вход
+                    navigate("/login");
+                } else {
+                    setError("Не удалось загрузить имя пользователя.");
+                }
+            }
+        };
+
+        fetchUsername();
+    }, [navigate]);
+
+    if (error) {
+        return <p className="error-message">{error}</p>;
+    }
+
+    if (!username) {
+        return <p>Загрузка данных...</p>; // Пока данные загружаются
+    }
+
     return (
         <div className="account">
             <div className="account-header">
                 <FaUserCircle className="account-icon" />
-                <h1>Добро пожаловать, [Имя Пользователя]</h1>
-            </div>
-
-            <div className="account-info">
-                <h2>Мои данные</h2>
-                <p>Электронная почта: user@example.com</p>
-                <p>Номер телефона: +123456789</p>
-            </div>
-
-            <div className="account-orders">
-                <h2>Мои заказы</h2>
-                <ul className="orders-list">
-                    <li className="order-item">Заказ №001 - Доставлен</li>
-                    <li className="order-item">Заказ №002 - В пути</li>
-                    <li className="order-item">Заказ №003 - Ожидает оплаты</li>
-                </ul>
+                <h1>Добро пожаловать, {username}!</h1>
             </div>
 
             <div className="account-actions">
-                <h2>Настройки</h2>
-                <button className="logout-button">
+                <button className="logout-button" onClick={handleLogout}>
                     <FaSignOutAlt /> Выйти из аккаунта
                 </button>
             </div>

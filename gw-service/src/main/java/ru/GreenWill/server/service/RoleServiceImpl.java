@@ -1,27 +1,25 @@
 package ru.GreenWill.server.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.RoleDto;
-import ru.GreenWill.Dto.model.User.UserDto;
-import ru.GreenWill.Dto.model.User.UserOutDto;
-
-
-/**
- * Сервисный класс для управления ролями.
- *
- * @see ru.GreenWill.server.service.RoleService
- * @see ru.GreenWill.Dto.model.RoleDto
- * @see UserDto
- * @see UserOutDto
- */
+import ru.GreenWill.server.enumarated.RoleName;
+import ru.GreenWill.server.mapper.RoleMapper;
+import ru.GreenWill.server.model.Role;
+import ru.GreenWill.server.repository.RoleRepository;
 
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
+
+    private final RoleMapper roleMapper;
+    private final RoleRepository roleRepository;
+
+    @Transactional
     @Override
     public void saveRole(RoleDto role) {
-
+        roleMapper.toRole(role);
     }
 
     @Override
@@ -29,8 +27,10 @@ public class RoleServiceImpl implements RoleService {
 
     }
 
+
     @Override
-    public UserOutDto updRolesUser(RoleDto role, UserDto userDto) {
-        return null;
+    public Role getRoleWithName(RoleName name) {
+        return roleRepository.findByRole(name);
     }
+
 }
