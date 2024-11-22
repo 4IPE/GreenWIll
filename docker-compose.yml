@@ -9,8 +9,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - gw-server
-#      - gw-kafka
+      - gw-service
       - gw-frontend
 #      - gw-reddis
     networks:
@@ -22,15 +21,15 @@ services:
     image: gw-frontend-img
     container_name: gw-frontend-con
     ports:
-      - "3000:80"
+      - "3000:3000"
     networks:
       - gw-network
 #    restart: "on-failure"
 
-  gw-server:
-    build: gw-server
-    image: gw-server-img
-    container_name: gw-server-con
+  gw-service:
+    build: gw-service
+    image: gw-service-img
+    container_name: gw-service-con
     ports:
       - "9090:9090"
     environment:
@@ -62,14 +61,6 @@ services:
     networks:
       - gw-network
 #    restart: "on-failure"
-
-  gw-kafka:
-    build: gw-kafka
-    image: gw-kafka-img
-    container_name: gw-kafka-con
-    ports:
-      - "7070:7070"
-    restart: "on-failure"
 
   gw-reddis:
     image: redis:latest
