@@ -6,9 +6,10 @@ import ru.GreenWill.Dto.model.Product.ProductDto;
 import ru.GreenWill.Dto.model.Product.ProductOutDto;
 import ru.GreenWill.server.model.Product;
 
-@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductMapper {
 
     Product toProduct(ProductDto productDto);
+
     ProductOutDto toProductOutDto(Product product);
 }

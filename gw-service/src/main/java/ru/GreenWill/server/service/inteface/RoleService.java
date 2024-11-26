@@ -7,7 +7,7 @@
  * @since 2024
  */
 
-package ru.GreenWill.server.service;
+package ru.GreenWill.server.service.inteface;
 
 
 import ru.GreenWill.Dto.model.RoleDto;
@@ -16,19 +16,8 @@ import ru.GreenWill.server.model.Role;
 
 public interface RoleService {
 
-    /**
-     * Сохраняет новую роль.
-     *
-     * @param role данные роли в виде DTO
-     */
-    void saveRole(RoleDto role);
 
-    /**
-     * Обновляет существующую роль.
-     *
-     * @param role данные роли в виде DTO
-     */
-    void updRole(RoleDto role);
+    void saveRole(RoleDto role);
 
 
     Role getRoleWithName(RoleName name);

@@ -76,20 +76,16 @@ public class JwtTokenProvider {
 
 
     public String resolveToken(HttpServletRequest request) {
-        // Сначала проверяем Authorization заголовок
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        // Затем читаем токен из куки
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
-                if ("token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
+                return cookie.getValue();
             }
         }
-        return null;
+        throw new RuntimeException("Ошибка получения токена ");
     }
 
 }

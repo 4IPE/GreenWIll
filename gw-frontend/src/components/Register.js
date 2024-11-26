@@ -14,14 +14,14 @@ const Register = () => {
         setError(null);
 
         try {
-            const response = await apiClient.post('/register', {
+            const response = await apiClient.post('/api/register', {
                 username: username,
                 password: password,
             });
             // Успешная регистрация
             console.log('Registration successful:', response.data);
             // Перенаправление на страницу входа
-            navigate('/home');
+            navigate('/');
         } catch (err) {
             // Ошибка регистрации
             setError(err.response?.data?.message || 'Registration failed. Please try again.');

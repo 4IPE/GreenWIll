@@ -1,4 +1,4 @@
-package ru.GreenWill.server.service;
+package ru.GreenWill.server.service.inteface;
 
 
 import jakarta.servlet.http.HttpServletResponse;

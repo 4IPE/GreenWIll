@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8080', // URL вашего бэкенда
-    withCredentials: true, // Для работы с куки
+    baseURL: 'http://localhost:8080',
+    withCredentials: true,
 });
 
 export default apiClient;

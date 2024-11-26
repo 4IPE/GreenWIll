@@ -1,27 +1,27 @@
-import React, {useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './style/Login.css';
 import apiClient from "./config/axiosConfig";
 
-
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(null);
 
         try {
-            const response = await apiClient.post('/auth/login', {
-                username: email,
+            const response = await apiClient.post('/api/login', {
+                username: login,
                 password: password,
             });
             // Успешный вход
             console.log('Login successful:', response.data);
             console.log(document.cookie);
-            // Перенаправление или другие действия после успешного входа
+            navigate("/");
         } catch (err) {
             // Ошибка авторизации
             setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -35,13 +35,13 @@ const Login = () => {
                 <p className="login-subtitle">Log in to your account</p>
                 <form className="login-form" onSubmit={handleLogin}>
                     <div className="input-group">
-                        <label htmlFor="email" className="input-label">Email</label>
+                        <label htmlFor="login" className="input-label">Login</label>
                         <input
-                            type="email"
-                            id="email"
+                            type="text"
+                            id="login"
                             className="input-field"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={login}
+                            onChange={(e) => setLogin(e.target.value)}
                             required
                         />
                     </div>

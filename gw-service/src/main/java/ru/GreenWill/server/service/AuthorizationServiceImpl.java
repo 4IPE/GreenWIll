@@ -4,8 +4,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserSingInDto;
@@ -13,9 +13,11 @@ import ru.GreenWill.Dto.model.User.UserSingUpDto;
 import ru.GreenWill.server.enumarated.RoleName;
 import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.security.jwt.JwtTokenProvider;
+import ru.GreenWill.server.service.inteface.AuthorizationService;
+import ru.GreenWill.server.service.inteface.RoleService;
+import ru.GreenWill.server.service.inteface.UserService;
 
-import java.util.Set;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
@@ -25,11 +27,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private final AuthenticationManager authenticationManager;
     private final RoleService roleService;
 
-    /**
-     * Регистрация пользователя
-     *
-     * @param request данные пользователя
-     */
     @Transactional
     @Override
     public void singUp(UserSingUpDto request, HttpServletResponse response) {
@@ -37,48 +34,35 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         User user = new User();
         user.setUsername(request.username());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRoles(Set.of(roleService.getRoleWithName(RoleName.ROLE_USER)));
+        user.setRole(roleService.getRoleWithName(RoleName.ROLE_USER));
 
         userService.save(user);
 
         var jwt = jwtService.createToken(user.getUsername());
-        Cookie cookie = new Cookie("token", jwt);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Требует HTTPS
-        cookie.setPath("/"); // Доступно на всём сайте
-        cookie.setMaxAge(3600); // Время жизни в секундах
-        response.addCookie(cookie);
+        response.addCookie(createJwtCookie(jwt));
 
     }
 
-    /**
-     * Аутентификация пользователя
-     *
-     * @param request данные пользователя
-     */
-    @Transactional
+
     @Override
     public void singIn(UserSingInDto request, HttpServletResponse response) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.username(),
-                request.password()
-        ));
-
+        log.info("Я зашел в singIn ");
         var user = userService
                 .userDetailsService()
                 .loadUserByUsername(request.username());
-
+        log.info("User {}", user);
         var jwt = jwtService.createToken(user.getUsername());
-        Cookie cookie = new Cookie("token", jwt);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Требует HTTPS
-        cookie.setPath("/"); // Доступно на всём сайте
-        cookie.setMaxAge(3600); // Время жизни в секундах
-        response.addCookie(cookie);
+        response.addCookie(createJwtCookie(jwt));
 
     }
 
-
+    private Cookie createJwtCookie(String jwt) {
+        Cookie cookie = new Cookie("token", jwt);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
+        return cookie;
+    }
 
 }
 

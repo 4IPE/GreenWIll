@@ -8,6 +8,7 @@ import ru.GreenWill.server.enumarated.RoleName;
 import ru.GreenWill.server.mapper.RoleMapper;
 import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.repository.RoleRepository;
+import ru.GreenWill.server.service.inteface.RoleService;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void saveRole(RoleDto role) {
         roleMapper.toRole(role);
-    }
-
-    @Override
-    public void updRole(RoleDto role) {
-
     }
 
 

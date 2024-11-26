@@ -3,62 +3,82 @@ import { useNavigate } from "react-router-dom";
 import "./style/Account.css";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import apiClient from "./config/axiosConfig";
-
+import Cookies from "js-cookie";
+import FAQ from "./FAQ"; // Импортируем библиотеку для работы с куки
 
 const Account = () => {
     const [username, setUsername] = useState(null); // Имя пользователя
     const [error, setError] = useState(null); // Ошибки
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Стейт для проверки, залогинен ли пользователь
     const navigate = useNavigate();
 
     // Функция выхода из аккаунта
     const handleLogout = async () => {
         try {
-            await apiClient.post("/logout", {}, { withCredentials: true });
-            navigate("/login");
+            await apiClient.get("/api/logout", { withCredentials: true });
+            setIsLoggedIn(false);
+            navigate("/");
         } catch (err) {
             console.error("Ошибка при выходе:", err);
         }
     };
 
-    // Получение имени пользователя при загрузке компонента
-    useEffect(() => {
-        const fetchUsername = async () => {
-            try {
-                const response = await apiClient.get("/user/get", { withCredentials: true });
-                setUsername(response.data.username); // Устанавливаем username
-            } catch (err) {
-                if (err.response && err.response.status === 401) {
-                    // Пользователь не авторизован, перенаправляем на вход
-                    navigate("/login");
-                } else {
-                    setError("Не удалось загрузить имя пользователя.");
-                }
+    // Проверка наличия токена на сервере
+    const checkTokenStatus = async () => {
+        try {
+            const response = await apiClient.get("/api/user/status", { withCredentials: true });
+            if (response.status === 200) {
+                setIsLoggedIn(true);
+                fetchUsername(); // Если токен существует, получаем имя пользователя
+            } else {
+                setIsLoggedIn(false);
             }
-        };
+        } catch (err) {
+            setIsLoggedIn(false);
+            if (err.response && err.response.status === 401) {
+                navigate("/login"); // Если токен невалидный, перенаправляем на страницу логина
+            }
+        }
+    };
 
-        fetchUsername();
+    // Получение имени пользователя
+    const fetchUsername = async () => {
+        try {
+            const response = await apiClient.get("/api/user/get", { withCredentials: true });
+            setUsername(response.data.username); // Устанавливаем имя пользователя
+        } catch (err) {
+            setError("Не удалось загрузить имя пользователя.");
+        }
+    };
+
+    // Запуск проверки токена и получения имени пользователя при монтировании компонента
+    useEffect(() => {
+        checkTokenStatus(); // Проверяем наличие токена
+
     }, [navigate]);
 
     if (error) {
         return <p className="error-message">{error}</p>;
     }
 
-    if (!username) {
-        return <p>Загрузка данных...</p>; // Пока данные загружаются
-    }
-
     return (
         <div className="account">
             <div className="account-header">
                 <FaUserCircle className="account-icon" />
-                <h1>Добро пожаловать, {username}!</h1>
+                {isLoggedIn ? (
+                    <h1>Добро пожаловать, {username}!</h1>
+                ) : (
+                    <h1></h1>
+                )}
             </div>
-
-            <div className="account-actions">
-                <button className="logout-button" onClick={handleLogout}>
-                    <FaSignOutAlt /> Выйти из аккаунта
-                </button>
-            </div>
+            {isLoggedIn && (
+                <div className="account-actions">
+                    <button className="logout-button" onClick={handleLogout}>
+                        <FaSignOutAlt /> Выйти из аккаунта
+                    </button>
+                </div>
+            )}
+            <FAQ/>
         </div>
     );
 };

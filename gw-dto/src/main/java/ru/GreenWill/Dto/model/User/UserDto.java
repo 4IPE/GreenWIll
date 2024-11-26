@@ -12,6 +12,6 @@ import jakarta.validation.constraints.Size;
  * @param username Имя пользователя. Не должно быть пустым, null или состоять из пробелов.
  * @param password Пароль пользователя. Не должен быть пустым, null или состоять из пробелов.
  */
-public record UserDto(@NotNull @NotEmpty @NotBlank @Size(max = 255,message = "Слишком длинное имя !") String username,
+public record UserDto(@NotNull @NotEmpty @NotBlank @Size(max = 255, message = "Слишком длинное имя !") String username,
                       @NotNull @NotEmpty @NotBlank String password) {
 }

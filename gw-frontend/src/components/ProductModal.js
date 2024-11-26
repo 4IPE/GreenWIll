@@ -1,11 +1,13 @@
-// src/components/ProductModal.js
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom"; // Для навигации
 import { CartContext } from "./context/CartContext";
+import apiClient from "./config/axiosConfig";
 import "./style/ProductModal.css";
 
 const ProductModal = ({ product, onClose }) => {
     const { addToCart } = useContext(CartContext);
     const [quantity, setQuantity] = useState(1);
+    const navigate = useNavigate(); // Используем navigate для редиректа
 
     const incrementQuantity = () => {
         setQuantity(quantity + 1);
@@ -17,9 +19,31 @@ const ProductModal = ({ product, onClose }) => {
         }
     };
 
+    const checkTokenStatus = async () => {
+        try {
+            const response = await apiClient.get("/api/user/status", { withCredentials: true });
+            if (response.status === 200) {
+                // Токен действителен, продолжаем
+                handleAddToCart();
+            } else {
+                // Если токен невалидный, перенаправляем на страницу логина
+                navigate("/login");
+            }
+        } catch (err) {
+            if (err.response && err.response.status === 401) {
+                // Если токен невалидный, перенаправляем на страницу логина
+                navigate("/login");
+            }
+        }
+    };
+
     const handleAddToCart = () => {
         addToCart({ ...product, quantity });
         onClose();
+    };
+
+    const handleAddToCartWithAuthCheck = () => {
+        checkTokenStatus(); // Проверяем токен перед добавлением в корзину
     };
 
     return (
@@ -37,7 +61,7 @@ const ProductModal = ({ product, onClose }) => {
                     <button onClick={incrementQuantity}>+</button>
                 </div>
 
-                <button className="add-to-cart-button" onClick={handleAddToCart}>
+                <button className="add-to-cart-button" onClick={handleAddToCartWithAuthCheck}>
                     Добавить в корзину
                 </button>
             </div>

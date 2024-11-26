@@ -22,6 +22,7 @@ const Navbar = () => {
             <div className={`navbar-menu ${isMobileMenuOpen ? "open" : ""}`}>
                 <Link to="/menu" className="navbar-item">Menu</Link>
                 <Link to="/about" className="navbar-item">About</Link>
+                <Link to="/subscriptions" className="navbar-item">Subscriptions</Link>
             </div>
 
             {/* Иконки пользователя и корзины */}

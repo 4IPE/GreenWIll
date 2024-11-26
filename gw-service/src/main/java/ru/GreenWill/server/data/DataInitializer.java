@@ -1,21 +1,23 @@
-package ru.GreenWill.server.model;
+package ru.GreenWill.server.data;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.GreenWill.server.enumarated.RoleName;
+import ru.GreenWill.server.model.Product;
+import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.repository.ProductRepository;
+import ru.GreenWill.server.repository.RoleRepository;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class DataInitializer {
 
     private final ProductRepository productRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    public DataInitializer(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     @PostConstruct
     public void init() {
@@ -34,6 +36,20 @@ public class DataInitializer {
             System.out.println("База данных инициализирована дефолтными продуктами.");
         } else {
             System.out.println("Продукты уже существуют в базе данных. Инициализация не требуется.");
+        }
+        if (roleRepository.count() == 0) {
+            // Создаем дефолтные продукты
+            Role admin = new Role();
+            Role user = new Role();
+            admin.setRole(RoleName.ROLE_ADMIN);
+            user.setRole(RoleName.ROLE_USER);
+            List<Role> defaultRole = List.of(admin, user);
+
+            // Сохраняем дефолтные продукты в базе
+            roleRepository.saveAll(defaultRole);
+            System.out.println("База данных инициализирована дефолтными ролями.");
+        } else {
+            System.out.println("Роли уже существуют в базе данных. Инициализация не требуется.");
         }
     }
 }

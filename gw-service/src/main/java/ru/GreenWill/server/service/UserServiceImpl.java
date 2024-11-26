@@ -1,23 +1,33 @@
 package ru.GreenWill.server.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
 import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.repository.UserRepository;
 import ru.GreenWill.server.security.jwt.JwtTokenProvider;
+import ru.GreenWill.server.service.inteface.UserService;
+
+import java.util.Optional;
 
 /**
  * Сервисный класс для управления пользователями.
  *
- * @see ru.GreenWill.server.service.UserService
+ * @see UserService
  * @see UserDto
  * @see UserOutDto
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -25,8 +35,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return Optional.ofNullable(userRepository.findByUsername(username))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
+
 
     @Override
     public UserDetailsService userDetailsService() {
@@ -39,15 +51,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserName(String token) {
+    public User getUserName(HttpServletRequest request) {
+        var token = jwtTokenProvider.resolveToken(request);
         if (!jwtTokenProvider.validateToken(token)) {
             throw new RuntimeException("Invalid token");
         }
         String username = jwtTokenProvider.getUsername(token);
+        log.info("Полученный имя: {}", username);
         User user = getUserByUsername(username);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
+        log.info("Полученный пользователя: {}", user.toString());
         return user;
+    }
+
+    @Override
+    public ResponseEntity<String> validCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    return ResponseEntity.ok("Token is present");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is not present");
     }
 }

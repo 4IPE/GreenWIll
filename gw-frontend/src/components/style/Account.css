@@ -45,6 +45,29 @@
 .logout-button:hover {
     background-color: #245c25;
 }
+.login-notice {
+    background-color: #ffeb3b;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-button {
+    background-color: #2e7d32;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+}
+
+.login-button:hover {
+    background-color: #245c25;
+}
 
 @media (max-width: 768px) {
     .account {

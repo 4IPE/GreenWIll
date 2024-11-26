@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.Product.ProductOutDto;
 import ru.GreenWill.server.mapper.ProductMapper;
 import ru.GreenWill.server.repository.ProductRepository;
+import ru.GreenWill.server.service.inteface.ProductService;
 
 import java.util.List;
 

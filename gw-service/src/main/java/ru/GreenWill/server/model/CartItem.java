@@ -22,6 +22,6 @@ public class CartItem {
     private Product product;
     @Column(name = "count_products")
     private Long countProducts;
-    
+
 
 }
