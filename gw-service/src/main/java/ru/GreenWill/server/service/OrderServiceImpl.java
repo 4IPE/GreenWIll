@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderOutDto> getAllOrderUser(HttpServletRequest request) {
-        User user = userService.getUserName(request);
+        User user = userService.getUserWithCookie(request);
         return orderRepository.findByUser_Id(user.getId()).stream().map(orderMapper::toOrderOutDto).toList();
     }
 }

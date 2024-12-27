@@ -27,13 +27,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartOutDto getCartUser(HttpServletRequest request) {
-        User user = userService.getUserName(request);
+        User user = userService.getUserWithCookie(request);
         return cartMapper.toCartOutDto(cartRepository.findByUser_Id(user.getId()));
     }
 
     @Override
     public void deleteCartUser(HttpServletRequest request) {
-        User user = userService.getUserName(request);
+        User user = userService.getUserWithCookie(request);
         cartRepository.deleteByUser_Id(user.getId());
     }
 }

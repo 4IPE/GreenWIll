@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
+import ru.GreenWill.server.mapper.UserMapper;
 import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.repository.UserRepository;
 import ru.GreenWill.server.security.jwt.JwtTokenProvider;
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -51,7 +53,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserName(HttpServletRequest request) {
+    public User getUserWithCookie(HttpServletRequest request) {
         var token = jwtTokenProvider.resolveToken(request);
         if (!jwtTokenProvider.validateToken(token)) {
             throw new RuntimeException("Invalid token");
@@ -59,9 +61,6 @@ public class UserServiceImpl implements UserService {
         String username = jwtTokenProvider.getUsername(token);
         log.info("Полученный имя: {}", username);
         User user = getUserByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
         log.info("Полученный пользователя: {}", user.toString());
         return user;
     }
@@ -78,4 +77,16 @@ public class UserServiceImpl implements UserService {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is not present");
     }
+
+    @Override
+    public void updateUserProfile(UserOutDto userDto, HttpServletRequest request) {
+        User user = getUserWithCookie(request);
+        if (userDto.email() != null) user.setEmail(userDto.email());
+        if (userDto.phone() != null) user.setPhone(userDto.phone());
+        if (userDto.firstName() != null) user.setFirstName(userDto.firstName());
+        if (userDto.lastName() != null) user.setLastName(userDto.lastName());
+        if (userDto.address() != null) user.setAddress(userDto.address());
+        userRepository.save(user);
+    }
+
 }

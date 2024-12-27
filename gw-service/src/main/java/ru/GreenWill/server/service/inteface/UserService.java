@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import ru.GreenWill.Dto.model.User.UserOutDto;
 import ru.GreenWill.server.model.User;
 
 public interface UserService {
@@ -23,7 +24,9 @@ public interface UserService {
     @Transactional
     void save(User user);
 
-    User getUserName(HttpServletRequest request);
+    User getUserWithCookie(HttpServletRequest request);
 
     ResponseEntity<String> validCookies(HttpServletRequest request);
+
+    void updateUserProfile(UserOutDto userDto, HttpServletRequest request);
 }

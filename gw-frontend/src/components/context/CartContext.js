@@ -6,20 +6,20 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
 
-    const addToCart = (product) => {
-        setCartItems((prevItems) => {
-            const existingItem = prevItems.find((item) => item.id === product.id);
-            if (existingItem) {
-                return prevItems.map((item) =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + product.quantity }
-                        : item
-                );
-            } else {
-                return [...prevItems, product];
-            }
-        });
-    };
+   const addToCart = (product) => {
+       setCartItems((prevItems) => {
+           const existingItem = prevItems.find((item) => item.id === product.id);
+           if (existingItem) {
+               return prevItems.map((item) =>
+                   item.id === product.id
+                       ? { ...item, quantity: item.quantity + (product.quantity || 1) } // Если quantity не передано, по умолчанию добавляем 1
+                       : item
+               );
+           } else {
+               return [...prevItems, { ...product, quantity: product.quantity || 1 }]; // Убедитесь, что quantity всегда есть
+           }
+       });
+   };
 
     const incrementQuantity = (id) => {
         setCartItems((prevItems) =>

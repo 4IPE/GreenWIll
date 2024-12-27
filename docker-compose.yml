@@ -14,7 +14,7 @@ services:
 #      - gw-reddis
     networks:
       - gw-network
-#    restart: "on-failure"
+    restart: "on-failure"
 
   gw-frontend:
     build: gw-frontend

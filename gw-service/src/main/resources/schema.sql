@@ -8,6 +8,11 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR NOT NULL UNIQUE,
     password VARCHAR NOT NULL,
     role_id BIGINT NOT NULL,
+    email VARCHAR,
+    phone VARCHAR,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    address VARCHAR,
     FOREIGN KEY(role_id) REFERENCES roles(id)
 );
 

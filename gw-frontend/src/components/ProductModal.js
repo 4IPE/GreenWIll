@@ -38,6 +38,7 @@ const ProductModal = ({ product, onClose }) => {
     };
 
     const handleAddToCart = () => {
+        console.log("Добавляем продукт:", { ...product, quantity });
         addToCart({ ...product, quantity });
         onClose();
     };

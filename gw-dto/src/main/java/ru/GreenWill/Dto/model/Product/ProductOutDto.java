@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 
-public record ProductOutDto(@NotNull @NotEmpty @NotBlank String name,
+public record ProductOutDto(@NotNull  Long id ,
+                            @NotNull @NotEmpty @NotBlank String name,
                             @NotNull @NotEmpty @NotBlank String description,
                             @NotNull @NotEmpty @NotBlank @PositiveOrZero Integer price,
                             @NotNull @NotEmpty @NotBlank @PositiveOrZero Integer calories,

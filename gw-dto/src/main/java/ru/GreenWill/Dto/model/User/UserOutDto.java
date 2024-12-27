@@ -9,5 +9,10 @@ import java.util.Set;
 
 
 public record UserOutDto(@NotNull @NotEmpty @NotBlank String username,
-                         @NotNull @NotEmpty Set<RoleDto> roles) {
+                         @NotNull @NotEmpty RoleDto role,
+                         String email,
+                         String phone,
+                         String firstName,
+                         String lastName,
+                         String address) {
 }
