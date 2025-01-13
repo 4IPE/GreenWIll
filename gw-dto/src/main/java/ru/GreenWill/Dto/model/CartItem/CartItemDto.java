@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ru.GreenWill.Dto.model.Product.ProductDto;
 
-
-public record CartItemDto(@NotNull @NotEmpty @NotBlank ProductDto product,
-                          @NotNull @NotEmpty @NotBlank Long countProducts) {
-}
+public record CartItemDto(
+    @NotNull ProductDto product,
+    @NotNull Long countProducts
+) {}
 //TODO

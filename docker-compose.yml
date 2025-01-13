@@ -17,11 +17,11 @@ services:
     restart: "on-failure"
 
   gw-frontend:
-    build: gw-frontend
-    image: gw-frontend-img
-    container_name: gw-frontend-con
+    build: gw-ui
+    image: gw-ui-img
+    container_name: gw-ui-con
     ports:
-      - "3000:80"
+      - "3000:3000"
     networks:
       - gw-network
 #    restart: "on-failure"

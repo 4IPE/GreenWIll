@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 150 40% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 150 40% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 150 40% 10%;
+  --primary: 142 70% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 150 30% 90%;
+  --secondary-foreground: 150 40% 10%;
+  --muted: 150 30% 90%;
+  --muted-foreground: 150 40% 40%;
+  --accent: 150 30% 85%;
+  --accent-foreground: 150 40% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 150 30% 85%;
+  --input: 150 30% 85%;
+  --ring: 142 70% 29%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 150 40% 5%;
+  --foreground: 0 0% 100%;
+  --card: 150 40% 8%;
+  --card-foreground: 0 0% 100%;
+  --popover: 150 40% 5%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 142 70% 50%;
+  --primary-foreground: 150 40% 10%;
+  --secondary: 150 30% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 150 30% 15%;
+  --muted-foreground: 150 40% 70%;
+  --accent: 150 30% 20%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 150 30% 20%;
+  --input: 150 30% 20%;
+  --ring: 142 70% 50%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+

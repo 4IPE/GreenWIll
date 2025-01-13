@@ -8,8 +8,6 @@ import ru.GreenWill.Dto.model.User.UserDto;
 
 import java.util.Set;
 
-
 public record CartDto(@NotNull @NotEmpty @NotBlank UserDto user,
-                      @NotNull @NotEmpty @NotBlank Set<CartItemDto> cartItems) {
+                     @NotNull @NotEmpty @NotBlank Set<CartItemDto> cartItems) {
 }
-//TODO
