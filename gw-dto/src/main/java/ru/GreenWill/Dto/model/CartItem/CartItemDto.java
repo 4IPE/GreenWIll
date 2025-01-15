@@ -9,4 +9,3 @@ public record CartItemDto(
     @NotNull ProductDto product,
     @NotNull Long countProducts
 ) {}
-//TODO

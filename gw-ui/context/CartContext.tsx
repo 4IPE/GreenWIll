@@ -2,6 +2,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react"
 import axiosConfig from '@/config/axiosConfig'
+import useAuth from '@/hooks/useAuth'
 
 interface CartItem {
   id: number
@@ -25,36 +26,49 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const { isLoggedIn } = useAuth()
 
+  // Загружаем корзину при монтировании и при изменении статуса авторизации
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart))
+    console.log('Fetching cart, isLoggedIn:', isLoggedIn)
+    if (isLoggedIn) {
+      fetchCart()
+    } else {
+      setCartItems([]) // Очищаем корзину если пользователь не авторизован
     }
-  }, [])
+  }, [isLoggedIn]) // Добавляем зависимость от isLoggedIn
 
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems))
-  }, [cartItems])
+  const fetchCart = async () => {
+    try {
+      setIsLoading(true)
+      console.log('Starting fetchCart')
+      const response = await axiosConfig.get('/api/cart')
+      console.log('Cart response:', response.data)
+      const cartData = response.data.cartItem.map((item: any) => ({
+        id: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.countProducts
+      }))
+      setCartItems(cartData)
+    } catch (err) {
+      console.error('Failed to fetch cart:', err)
+      if ((err as any)?.response?.status === 401) {
+        setCartItems([])
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const addToCart = async (product: CartItem) => {
     try {
       setIsLoading(true)
-      const existingItem = cartItems.find(item => item.id === product.id)
-      
-      if (existingItem) {
-        setCartItems(cartItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + product.quantity }
-            : item
-        ))
-      } else {
-        setCartItems([...cartItems, product])
-      }
-      
-      await axiosConfig.post(`/api/cart/add/${product.id}`, {
-        quantity: product.quantity
+      await axiosConfig.post('/api/cart/add', {
+        productId: product.id,
+        productCount: product.quantity
       })
+      await fetchCart()
     } catch (err) {
       console.error('Failed to add item to cart:', err)
     } finally {
@@ -65,15 +79,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const incrementQuantity = async (id: number) => {
     try {
       setIsLoading(true)
-      setCartItems(cartItems.map(item =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ))
-      
       const item = cartItems.find(item => item.id === id)
       if (item) {
-        await axiosConfig.put(`/api/cart/update/${id}?quantity=${item.quantity + 1}`)
+        await axiosConfig.put('/api/cart/update', {
+          productId: id,
+          productCount: item.quantity + 1
+        })
+        await fetchCart()
       }
     } catch (err) {
       console.error('Failed to increment quantity:', err)
@@ -87,12 +99,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true)
       const item = cartItems.find(item => item.id === id)
       if (item && item.quantity > 1) {
-        setCartItems(cartItems.map(cartItem =>
-          cartItem.id === id
-            ? { ...cartItem, quantity: cartItem.quantity - 1 }
-            : cartItem
-        ))
-        await axiosConfig.put(`/api/cart/update/${id}?quantity=${item.quantity - 1}`)
+        await axiosConfig.put('/api/cart/update', {
+          productId: id,
+          productCount: item.quantity - 1
+        })
+        await fetchCart()
       }
     } catch (err) {
       console.error('Failed to decrement quantity:', err)
@@ -104,8 +115,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeItem = async (id: number) => {
     try {
       setIsLoading(true)
-      setCartItems(cartItems.filter(item => item.id !== id))
-      await axiosConfig.delete(`/api/cart/remove/${id}`)
+      await axiosConfig.delete('/api/cart/remove', {
+        params: { productId: id }
+      })
+      await fetchCart()
     } catch (err) {
       console.error('Failed to remove item:', err)
     } finally {
@@ -116,8 +129,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = async () => {
     try {
       setIsLoading(true)
-      setCartItems([])
       await axiosConfig.delete('/api/cart/clear')
+      setCartItems([])
     } catch (err) {
       console.error('Failed to clear cart:', err)
     } finally {

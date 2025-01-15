@@ -82,10 +82,12 @@ public class JwtTokenProvider {
         }
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
-                return cookie.getValue();
+                if (cookie.getName().equals("token")) {
+                    return cookie.getValue();
+                }
             }
         }
-        throw new RuntimeException("Ошибка получения токена ");
+        return null;
     }
 
 }

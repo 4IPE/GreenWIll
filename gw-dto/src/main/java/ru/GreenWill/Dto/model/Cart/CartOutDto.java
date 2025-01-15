@@ -11,4 +11,3 @@ import java.util.Set;
 public record CartOutDto(@NotNull @NotEmpty @NotBlank UserOutDto user,
                         @NotNull @NotEmpty @NotBlank Set<CartItemOutDto> cartItem) {
 }
-//TODO

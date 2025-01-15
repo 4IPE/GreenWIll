@@ -7,7 +7,9 @@ import ru.GreenWill.Dto.model.CartItem.CartItemDto;
 
 public interface CartService {
     CartOutDto getCart(HttpServletRequest request);
-    CartOutDto addToCart();
+
+    CartOutDto addToCart(CartItemDto item, HttpServletRequest request);
+
     CartOutDto updateCartItem(Long productId, Long quantity, HttpServletRequest request);
     CartOutDto removeFromCart(Long productId, HttpServletRequest request);
     void clearCart(HttpServletRequest request);

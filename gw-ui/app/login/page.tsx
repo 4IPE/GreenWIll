@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useRouter } from 'next/navigation'
 import axiosConfig from '@/config/axiosConfig'
 
-const LANDSCAPE_IMAGE_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-31 17.23.08 - A breathtaking 4K landscape featuring a dense green forest with tall trees, majestic mountains in the background, a clear blue sky, and a serene river-0yLCMiSFg7mfT9tZNMMDDVfxPv3Skn.png";
 
 interface ApiError {
   response?: {
@@ -26,32 +25,10 @@ export const runtime = 'edge'
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
-  const [imageSrc, setImageSrc] = useState(LANDSCAPE_IMAGE_URL)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-
-  useEffect(() => {
-    const preloadImage = async () => {
-      try {
-        const response = await fetch(LANDSCAPE_IMAGE_URL);
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        setImageSrc(objectUrl);
-      } catch (error) {
-        console.error('Failed to preload image:', error);
-      }
-    };
-
-    preloadImage();
-
-    return () => {
-      if (imageSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(imageSrc);
-      }
-    };
-  }, [imageSrc]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,25 +54,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Левая секция с изображением */}
       <div className="relative w-full md:w-1/2 h-48 md:h-screen overflow-hidden bg-black">
         <Image
-          src={imageSrc}
-          alt="Природный пейзаж"
+          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-31 17.23.08 - A breathtaking 4K landscape featuring a dense green forest with tall trees, majestic mountains in the background, a clear blue sky, and a serene river-0yLCMiSFg7mfT9tZNMMDDVfxPv3Skn.png"
+          alt="Login"
           fill
-          className="object-cover opacity-80"
           priority
+          className="object-cover opacity-50"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">GreenWill</h1>
-            <p className="text-xl text-white/90">Здоровая еда для здоровой жизни</p>
-          </motion.div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-4xl font-bold text-white">GreenWill</h1>
         </div>
       </div>
 

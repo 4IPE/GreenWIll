@@ -10,7 +10,7 @@ import ru.GreenWill.Dto.model.CartItem.CartItemDto;
 import ru.GreenWill.server.service.inteface.CartService;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 @RequiredArgsConstructor
 @Slf4j
 public class CartController {
@@ -25,21 +25,21 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<CartOutDto> addToCart(@RequestBody CartItemDto itemDto, HttpServletRequest request) {
         log.info("Добавление товара в корзину: {}", itemDto);
-        return ResponseEntity.ok(cartService.addToCart());
+        return ResponseEntity.ok(cartService.addToCart(itemDto,request));
     }
 
-    @PutMapping("/update/{productId}")
+    @PutMapping("/update")
     public ResponseEntity<CartOutDto> updateCartItem(
-            @PathVariable Long productId,
+            @RequestParam Long productId,
             @RequestParam Long quantity,
             HttpServletRequest request) {
         log.info("Обновление количества товара в корзине");
         return ResponseEntity.ok(cartService.updateCartItem(productId, quantity, request));
     }
 
-    @DeleteMapping("/remove/{productId}")
+    @DeleteMapping("/remove")
     public ResponseEntity<CartOutDto> removeFromCart(
-            @PathVariable Long productId,
+            @RequestParam Long productId,
             HttpServletRequest request) {
         log.info("Удаление товара из корзины");
         return ResponseEntity.ok(cartService.removeFromCart(productId, request));
