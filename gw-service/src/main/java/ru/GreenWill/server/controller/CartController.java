@@ -23,9 +23,10 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CartOutDto> addToCart(@RequestBody CartItemDto itemDto, HttpServletRequest request) {
+    public ResponseEntity<?> addToCart(@RequestBody CartItemDto itemDto, HttpServletRequest request) {
         log.info("Добавление товара в корзину: {}", itemDto);
-        return ResponseEntity.ok(cartService.addToCart(itemDto,request));
+        cartService.addToCart(itemDto,request);
+        return ResponseEntity.ok("cartService.addToCart(itemDto,request)");
     }
 
     @PutMapping("/update")

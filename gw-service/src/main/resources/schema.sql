@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS carts (
 
 CREATE TABLE IF NOT EXISTS cart_items (
     id BIGSERIAL PRIMARY KEY,
-    cart_id BIGINT NOT NULL UNIQUE,
-    products_id BIGINT NOT NULL UNIQUE,
+    cart_id BIGINT NOT NULL,
+    products_id BIGINT NOT NULL,
     count_products BIGINT NOT NULL,
     CONSTRAINT fk_cart FOREIGN KEY(cart_id) REFERENCES carts(id),
     CONSTRAINT fk_product FOREIGN KEY(products_id) REFERENCES products(id)

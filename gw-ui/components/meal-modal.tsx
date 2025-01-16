@@ -18,6 +18,7 @@ interface Meal {
   price: number
   image: string
   calories: number
+  category: string
 }
 
 interface MealModalProps {
@@ -26,9 +27,11 @@ interface MealModalProps {
 }
 
 export default function MealModal({ meal, onClose }: MealModalProps) {
-  const { addToCart, isLoading } = useCart()
+  const { addToCart, isLoading, isItemInCart } = useCart()
   const router = useRouter()
   const { isLoggedIn } = useAuth()
+
+  const isInCart = isItemInCart(meal.id)
 
   const handleAddToCart = async () => {
     try {
@@ -38,10 +41,16 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
       }
 
       await addToCart({
-        id: meal.id,
-        name: meal.name,
-        price: meal.price,
-        quantity: 1
+        product: {
+          name: meal.name,
+          description: meal.description,
+          price: meal.price,
+          calories: meal.calories,
+          category: meal.category,
+          img: meal.image,
+          id: meal.id
+        },
+        countProducts: 1
       })
       onClose()
     } catch (error) {
@@ -74,10 +83,10 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
         </div>
         <Button 
           onClick={handleAddToCart} 
-          disabled={isLoading}
+          disabled={isLoading || isInCart}
           className="w-full"
         >
-          {isLoading ? 'Добавление...' : 'Добавить в корзину'}
+          {isInCart ? 'Товар в корзине' : isLoading ? 'Добавление...' : 'Добавить в корзину'}
         </Button>
       </DialogContent>
     </Dialog>

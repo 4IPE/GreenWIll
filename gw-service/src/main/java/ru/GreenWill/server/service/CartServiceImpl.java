@@ -20,6 +20,8 @@ import ru.GreenWill.server.service.inteface.CartService;
 import ru.GreenWill.server.service.inteface.UserService;
 
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,22 +38,11 @@ public class CartServiceImpl implements CartService {
     public CartOutDto getCart(HttpServletRequest request) {
         User user = userService.getUserWithCookie(request);
         Cart cart = getOrCreateCart(user);
+        log.info(cartMapper.toCartOutDto(cart).toString());
         return cartMapper.toCartOutDto(cart);
     }
 
-    @Override
-    public CartOutDto addToCart(CartItemDto item, HttpServletRequest request) {
-        User user = userService.getUserWithCookie(request);
-        Cart cart = getOrCreateCart(user);
-        log.info("Проинцилизированные данный ");
-        log.info(cart.toString());
-        log.info(user.toString());
-        cart.getCartItems().add(cartItemMapper.toCartItem(item));
-        cartRepository.save(cart);
-        log.info("Сохранненые данный ");
-        log.info(cart.toString());
-        return cartMapper.toCartOutDto(cart);
-    }
+
 
 
     @Override
@@ -65,9 +56,32 @@ public class CartServiceImpl implements CartService {
             throw new ResourceNotFoundException("Item not found in cart");
         }
 
-        item.setCountProducts(quantity);
-        cartItemRepository.save(item);
+        if (quantity <= 0) {
+            // Если количество 0 или меньше - удаляем товар
+            cart.getCartItems().remove(item);
+            cartItemRepository.delete(item);
+        } else {
+            item.setCountProducts(quantity);
+            cartItemRepository.save(item);
+        }
 
+        return cartMapper.toCartOutDto(cart);
+    }
+
+    @Override
+    public CartOutDto addToCart(CartItemDto item, HttpServletRequest request) {
+        User user = userService.getUserWithCookie(request);
+        Cart cart = getOrCreateCart(user);
+        if(!cart.getCartItems().isEmpty()){
+         CartItem cartItem =cart.getCartItems().stream().filter(items->items.getProduct().getId().equals(item.product().id())).collect(Collectors.toSet()).stream().findFirst().orElse(new CartItem());
+         if(cartItem.getId() != null)
+            updateCartItem(cartItem.getProduct().getId(),1L,request);
+        }
+        CartItem cartItemOld = cartItemMapper.toCartItem(item);
+        cartItemOld.setCart(cart);
+        CartItem cartItemNew = cartItemRepository.save(cartItemOld);
+        cart.getCartItems().add(cartItemNew);
+        cartRepository.save(cart);
         return cartMapper.toCartOutDto(cart);
     }
 
@@ -76,8 +90,15 @@ public class CartServiceImpl implements CartService {
     public CartOutDto removeFromCart(Long productId, HttpServletRequest request) {
         User user = userService.getUserWithCookie(request);
         Cart cart = getOrCreateCart(user);
+        
 
-        cartItemRepository.deleteByCart_IdAndProduct_Id(cart.getId(), productId);
+        CartItem itemToRemove = cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId);
+        if (itemToRemove != null) {
+            cart.getCartItems().remove(itemToRemove);
+            cartItemRepository.delete(itemToRemove);
+            cartRepository.save(cart);
+        }
+        
         return cartMapper.toCartOutDto(cart);
     }
 

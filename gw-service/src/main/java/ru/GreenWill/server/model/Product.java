@@ -1,10 +1,7 @@
 package ru.GreenWill.server.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 @Entity
@@ -31,5 +28,16 @@ public class Product {
     @Column
     private String img;
 
-
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", calories=" + calories +
+                ", category='" + category + '\'' +
+                ", img='" + img + '\'' +
+                '}';
+    }
 }

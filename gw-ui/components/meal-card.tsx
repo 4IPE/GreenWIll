@@ -19,6 +19,8 @@ interface Meal {
   description: string
   price: number
   image: string
+  calories: number
+  category: string
 }
 
 interface MealCardProps {
@@ -28,8 +30,10 @@ interface MealCardProps {
 
 export default function MealCard({ meal, onSelect }: MealCardProps) {
   const router = useRouter()
-  const { isLoading, addToCart } = useCart()
+  const { isLoading, addToCart, isItemInCart } = useCart()
   const { isLoggedIn } = useAuth()
+
+  const isInCart = isItemInCart(meal.id)
 
   const handleAddToCart = async () => {
     try {
@@ -39,10 +43,16 @@ export default function MealCard({ meal, onSelect }: MealCardProps) {
       }
 
       await addToCart({
-        id: meal.id,
-        name: meal.name,
-        price: meal.price,
-        quantity: 1
+        product: {
+          id: meal.id,
+          name: meal.name,
+          description: meal.description,
+          price: meal.price,
+          calories: meal.calories,
+          category: meal.category,
+          img: meal.image
+        },
+        countProducts: 1
       })
     } catch (error) {
       console.error('Error adding to cart:', error)
@@ -75,9 +85,9 @@ export default function MealCard({ meal, onSelect }: MealCardProps) {
           </Button>
           <Button 
             onClick={handleAddToCart}
-            disabled={isLoading}
+            disabled={isLoading || isInCart}
           >
-            {isLoading ? 'Добавление...' : 'В корзину'}
+            {isInCart ? 'В корзине' : isLoading ? 'Добавление...' : 'В корзину'}
           </Button>
         </div>
       </CardFooter>

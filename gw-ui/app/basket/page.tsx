@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,13 +14,21 @@ export const runtime = 'edge'
 
 export default function Basket() {
   const { isLoggedIn, isLoading: authLoading } = useAuth()
-  const { cartItems, incrementQuantity, decrementQuantity, removeItem, isLoading } = useCart()
+  const { cartItems, incrementQuantity, decrementQuantity, removeItem, fetchCart, loadingItems } = useCart()
   const router = useRouter()
+
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+
+  useEffect(() => {
+    if (!authLoading && isLoggedIn && isInitialLoad) {
+      fetchCart()
+      setIsInitialLoad(false)
+    }
+  }, [authLoading, isLoggedIn, fetchCart, isInitialLoad])
 
   useEffect(() => {
     if (!authLoading && !isLoggedIn && typeof window !== 'undefined') {
       router.push('/login')
-      return
     }
   }, [authLoading, isLoggedIn, router])
 
@@ -28,18 +36,18 @@ export default function Basket() {
     return <div>Loading...</div>
   }
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const total = cartItems.reduce((sum, item) => sum + item.product.price * item.countProducts, 0)
 
-  const handleIncrement = async (id: number) => {
-    await incrementQuantity(id)
+  const handleIncrement = (id: number) => {
+    incrementQuantity(id)
   }
 
-  const handleDecrement = async (id: number) => {
-    await decrementQuantity(id)
+  const handleDecrement = (id: number) => {
+    decrementQuantity(id)
   }
 
-  const handleRemove = async (id: number) => {
-    await removeItem(id)
+  const handleRemove = (id: number) => {
+    removeItem(id)
   }
 
   return (
@@ -61,41 +69,56 @@ export default function Basket() {
             {cartItems.length > 0 ? (
               cartItems.map((item) => (
                 <motion.div
-                  key={item.id}
+                  key={item.product.id}
+                  layout
                   className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 p-4 border rounded"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
                 >
                   <div className="mb-2 sm:mb-0">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-500">{item.price} ₽</p>
+                    <h3 className="font-semibold">{item.product.name}</h3>
+                    <p className="text-sm text-gray-500">{item.product.price} ₽</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button 
                       size="icon" 
                       variant="outline" 
-                      onClick={() => handleDecrement(item.id)}
-                      disabled={isLoading}
+                      onClick={() => handleDecrement(item.product.id)}
+                      disabled={loadingItems.has(item.product.id)}
                     >
-                      <Minus className="h-4 w-4" />
+                      {loadingItems.has(item.product.id) ? (
+                        <span className="animate-spin">⟳</span>
+                      ) : (
+                        <Minus className="h-4 w-4" />
+                      )}
                     </Button>
-                    <span className="w-8 text-center">{item.quantity}</span>
+                    <motion.span 
+                      className="w-8 text-center"
+                      animate={{ scale: loadingItems.has(item.product.id) ? 0.95 : 1 }}
+                    >
+                      {item.countProducts}
+                    </motion.span>
                     <Button 
                       size="icon" 
                       variant="outline" 
-                      onClick={() => handleIncrement(item.id)}
-                      disabled={isLoading}
+                      onClick={() => handleIncrement(item.product.id)}
+                      disabled={loadingItems.has(item.product.id)}
                     >
-                      <Plus className="h-4 w-4" />
+                      {loadingItems.has(item.product.id) ? (
+                        <span className="animate-spin">⟳</span>
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
                     </Button>
                     <Button 
                       size="icon" 
                       variant="destructive" 
-                      onClick={() => handleRemove(item.id)}
-                      disabled={isLoading}
+                      onClick={() => handleRemove(item.product.id)}
+                      disabled={loadingItems.has(item.product.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {loadingItems.has(item.product.id) ? (
+                        <span className="animate-spin">⟳</span>
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </motion.div>

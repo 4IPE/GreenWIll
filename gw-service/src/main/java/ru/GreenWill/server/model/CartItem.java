@@ -3,6 +3,7 @@ package ru.GreenWill.server.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 
 @Entity
@@ -23,5 +24,12 @@ public class CartItem {
     @Column(name = "count_products")
     private Long countProducts;
 
-
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                "id=" + id +
+                ", product=" + product +
+                ", countProducts=" + countProducts +
+                '}';
+    }
 }

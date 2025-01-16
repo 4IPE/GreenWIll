@@ -14,6 +14,17 @@ interface Meal {
   image: string
   description: string
   calories: number
+  category: string
+}
+
+interface ApiMeal {
+  id: number
+  name: string
+  price: number
+  image: string
+  description: string
+  calories: number
+  category?: string  // опциональное поле, так как может отсутствовать в ответе
 }
 
 export default function Menu() {
@@ -25,7 +36,11 @@ export default function Menu() {
     const fetchMeals = async () => {
       try {
         const response = await axiosConfig.get('/api/products/all')
-        setMeals(response.data)
+        const mealsWithCategory = response.data.map((meal: ApiMeal) => ({
+          ...meal,
+          category: meal.category || ''
+        }))
+        setMeals(mealsWithCategory)
       } catch (err) {
         setError('Failed to load meals. Please try again later.')
         console.error('Failed to fetch meals:', err)
