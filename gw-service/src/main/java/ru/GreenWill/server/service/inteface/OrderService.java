@@ -11,5 +11,7 @@ public interface OrderService {
 
     void saveOrder(OrderDto orderDto);
 
-    List<OrderOutDto> getAllOrderUser(HttpServletRequest request);
+    List<OrderOutDto> getActiveOrders(HttpServletRequest request);
+
+    List<OrderOutDto> getAllOrderHistory(HttpServletRequest request);
 }

@@ -106,21 +106,27 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void clearCart(HttpServletRequest request) {
         User user = userService.getUserWithCookie(request);
-        Cart cart = getOrCreateCart(user);
-        cartItemRepository.deleteByCart_Id(cart.getId());
+        Cart currentCart = getOrCreateCart(user);
+
+        // Деактивируем текущую корзину
+        currentCart.setIsActive(false);
+        cartRepository.save(currentCart);
+
+        // Создаем новую корзину через существующий метод
+        getOrCreateCart(user);
     }
 
     private Cart getOrCreateCart(User user) {
         log.info("Создание или поиск корзины");
-        Cart cart = cartRepository.findByUser_Id(user.getId());
-        log.info("Найдена вот такая корзина {}",cart);
+        // Ищем только активную корзину
+        Cart cart = cartRepository.findByUser_IdAndIsActiveTrue(user.getId()).orElse(null);
+        
         if (cart == null) {
             cart = new Cart();
-            log.info("Создание  корзины");
             cart.setUser(user);
             cart.setCartItems(new HashSet<>());
+            cart.setIsActive(true);
             cart = cartRepository.save(cart);
-            log.info("Создана вот такая корзина {}",cart);
         }
 
         return cart;

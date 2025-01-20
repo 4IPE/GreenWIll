@@ -60,10 +60,18 @@ export default function Login() {
           alt="Login"
           fill
           priority
-          className="object-cover opacity-50"
+          className="object-cover opacity-80"
         />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl font-bold text-white">GreenWill</h1>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">GreenWill</h1>
+            <p className="text-xl text-white/90">Здоровая еда для здоровой жизни</p>
+          </motion.div>
         </div>
       </div>
 

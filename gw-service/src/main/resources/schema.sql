@@ -29,10 +29,11 @@ CREATE TABLE IF NOT EXISTS products (
 
 
 CREATE TABLE IF NOT EXISTS carts (
-        id BIGSERIAL PRIMARY KEY,
-        user_id BIGINT NOT NULL,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-        );
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    is_active BOOLEAN DEFAULT true,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
 
 CREATE TABLE IF NOT EXISTS cart_items (
     id BIGSERIAL PRIMARY KEY,
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
 CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    cart_id BIGINT NOT NULL UNIQUE,
+    cart_id BIGINT NOT NULL,
     status VARCHAR,
     CONSTRAINT fk_user_orders FOREIGN KEY(user_id) REFERENCES users(id),
     CONSTRAINT fk_cart_orders FOREIGN KEY(cart_id) REFERENCES carts(id)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +12,9 @@ import FAQ from "@/components/faq"
 import axiosConfig from '@/config/axiosConfig'
 import useAuth from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
+import { OrderOutDto } from '@/types/order'
+import { OrderReceiptModal } from "@/components/order-receipt-modal"
+import { formatCurrency, formatOrderStatus } from "@/lib/utils"
 
 interface UserProfile {
   username: string
@@ -44,6 +47,9 @@ export default function Profile() {
     phone: '',
     address: ''
   })
+  const [activeOrders, setActiveOrders] = useState<OrderOutDto[]>([])
+  const [orderHistory, setOrderHistory] = useState<OrderOutDto[]>([])
+  const [selectedOrder, setSelectedOrder] = useState<OrderOutDto | null>(null)
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
@@ -69,6 +75,25 @@ export default function Profile() {
     }
   }, [isLoggedIn, isLoading, router])
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const [activeResponse, historyResponse] = await Promise.all([
+          axiosConfig.get('/api/orders/active'),
+          axiosConfig.get('/api/orders/history')
+        ])
+        setActiveOrders([...activeResponse.data].sort((a, b) => b.id - a.id))
+        setOrderHistory([...historyResponse.data].sort((a, b) => b.id - a.id))
+      } catch (err) {
+        console.error('Failed to fetch orders:', err)
+      }
+    }
+
+    if (isLoggedIn) {
+      fetchOrders()
+    }
+  }, [isLoggedIn])
+
   const handleSave = async () => {
     try {
       await axiosConfig.post(
@@ -85,6 +110,16 @@ export default function Profile() {
       console.error("Ошибка при обновлении профиля:", err)
     }
   }
+
+  const sortedActiveOrders = useMemo(() => 
+    [...activeOrders].sort((a, b) => b.id - a.id), 
+    [activeOrders]
+  )
+
+  const sortedOrderHistory = useMemo(() => 
+    [...orderHistory].sort((a, b) => b.id - a.id), 
+    [orderHistory]
+  )
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -266,17 +301,24 @@ export default function Profile() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <motion.div
-                      className="p-4 border rounded"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p><strong>Номер заказа:</strong> #12345</p>
-                      <p><strong>Дата:</strong> 2024-03-20</p>
-                      <p><strong>Статус:</strong> В обработке</p>
-                      <p><strong>Сумма:</strong> 1500 ₽</p>
-                    </motion.div>
+                    {sortedActiveOrders.map((order) => (
+                      <motion.div
+                        key={order.cart.id}
+                        className="p-4 border rounded cursor-pointer hover:bg-accent/50 transition-colors"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                        onClick={() => setSelectedOrder(order)}
+                      >
+                        <p><strong>Номер заказа:</strong> #{order.id}</p>
+                        <p><strong>Статус:</strong> {formatOrderStatus(order.status)}</p>
+                        <p><strong>Сумма:</strong> {formatCurrency(order.cart.cartItem.reduce((sum: number, item) => 
+                          sum + item.product.price * item.countProducts, 0))}</p>
+                      </motion.div>
+                    ))}
+                    {sortedActiveOrders.length === 0 && (
+                      <p className="text-center text-muted-foreground">Нет активных заказов</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -289,17 +331,24 @@ export default function Profile() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <motion.div
-                      className="p-4 border rounded"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p><strong>Номер заказа:</strong> #12344</p>
-                      <p><strong>Дата:</strong> 2024-03-19</p>
-                      <p><strong>Статус:</strong> Доставлен</p>
-                      <p><strong>Сумма:</strong> 2300 ₽</p>
-                    </motion.div>
+                    {sortedOrderHistory.map((order) => (
+                      <motion.div
+                        key={order.cart.id}
+                        className="p-4 border rounded cursor-pointer hover:bg-accent/50 transition-colors"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                        onClick={() => setSelectedOrder(order)}
+                      >
+                        <p><strong>Номер заказа:</strong> #{order.id}</p>
+                        <p><strong>Статус:</strong> {formatOrderStatus(order.status)}</p>
+                        <p><strong>Сумма:</strong> {formatCurrency(order.cart.cartItem.reduce((sum: number, item) => 
+                          sum + item.product.price * item.countProducts, 0))}</p>
+                      </motion.div>
+                    ))}
+                    {sortedOrderHistory.length === 0 && (
+                      <p className="text-center text-muted-foreground">История заказов пуста</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -311,6 +360,12 @@ export default function Profile() {
           <FAQ />
         </div>
       </motion.div>
+
+      <OrderReceiptModal
+        order={selectedOrder}
+        isOpen={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   )
 }

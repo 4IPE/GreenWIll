@@ -9,5 +9,6 @@ import ru.GreenWill.Dto.model.User.UserOutDto;
 
 public record OrderOutDto(@NotNull @NotEmpty @NotBlank UserOutDto user,
                           @NotNull @NotEmpty @NotBlank CartOutDto cart,
+                          @NotNull Long id,
                           @NotNull @NotEmpty @NotBlank String status) {
 }

@@ -30,8 +30,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderOutDto> getAllOrderUser(HttpServletRequest request) {
+    public List<OrderOutDto> getActiveOrders(HttpServletRequest request) {
         User user = userService.getUserWithCookie(request);
-        return orderRepository.findByUser_Id(user.getId()).stream().map(orderMapper::toOrderOutDto).toList();
+        return orderRepository.findByUser_IdAndStatus(user.getId(), Status.ACTIVITY)
+                .stream()
+                .map(orderMapper::toOrderOutDto)
+                .toList();
+    }
+
+    @Override
+    public List<OrderOutDto> getAllOrderHistory(HttpServletRequest request) {
+        User user = userService.getUserWithCookie(request);
+        return orderRepository.findByUser_IdAndStatusNot(user.getId(), Status.ACTIVITY)
+                .stream()
+                .map(orderMapper::toOrderOutDto)
+                .toList();
     }
 }

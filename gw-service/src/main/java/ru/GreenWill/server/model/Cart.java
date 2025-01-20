@@ -17,11 +17,14 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.EAGER)
     private Set<CartItem> cartItems;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @Override
     public String toString() {

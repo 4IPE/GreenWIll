@@ -8,6 +8,16 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import useAuth from '@/hooks/useAuth'
 import { useCart } from '@/context/CartContext'
+import axiosConfig from '@/config/axiosConfig'
+
+interface UserInfo {
+  username: string
+  email: string
+  phone: string
+  firstName: string
+  lastName: string
+  address: string
+}
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'edge'
@@ -16,8 +26,8 @@ export default function Basket() {
   const { isLoggedIn, isLoading: authLoading } = useAuth()
   const { cartItems, incrementQuantity, decrementQuantity, removeItem, fetchCart, loadingItems } = useCart()
   const router = useRouter()
-
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
   useEffect(() => {
     if (!authLoading && isLoggedIn && isInitialLoad) {
@@ -32,11 +42,25 @@ export default function Basket() {
     }
   }, [authLoading, isLoggedIn, router])
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      const fetchUserInfo = async () => {
+        try {
+          const response = await axiosConfig.get("/api/user/profile")
+          setUserInfo(response.data)
+        } catch (err) {
+          console.error('Failed to fetch user info:', err)
+        }
+      }
+      fetchUserInfo()
+    }
+  }, [isLoggedIn])
+
   if (authLoading) {
     return <div>Loading...</div>
   }
 
-  const total = cartItems.reduce((sum, item) => sum + item.product.price * item.countProducts, 0)
+  const total = cartItems.reduce((sum: number, item) => sum + item.product.price * item.countProducts, 0)
 
   const handleIncrement = (id: number) => {
     incrementQuantity(id)
@@ -48,6 +72,32 @@ export default function Basket() {
 
   const handleRemove = (id: number) => {
     removeItem(id)
+  }
+
+  const handleCreateOrder = async () => {
+    if (!userInfo) return
+    try {
+      const orderData = {
+        user: {
+          username: userInfo.username,
+          password: ''
+        },
+        cart: {
+          user: {
+            username: userInfo.username,
+            password: ''
+          },
+          cartItems: cartItems
+        }
+      }
+
+      await axiosConfig.post('/api/order/create', orderData)
+      await axiosConfig.delete('/api/cart/clear')
+      await fetchCart()
+      router.push('/profile?tab=orders')
+    } catch (err) {
+      console.error('Failed to create order:', err)
+    }
   }
 
   return (
@@ -138,7 +188,9 @@ export default function Basket() {
             <Button className="flex-1" onClick={() => router.push('/menu')}>
               Продолжить покупки
             </Button>
-            <Button className="flex-1">Оформить Заказ</Button>
+            <Button className="flex-1" onClick={handleCreateOrder}>
+              Оформить Заказ
+            </Button>
           </div>
         )}
       </motion.div>
