@@ -22,4 +22,10 @@ public class Order {
     @Column
     @Enumerated(EnumType.STRING)
     private Status status;
+    @ManyToOne
+    @JoinColumn(name = "courier_id", referencedColumnName = "id")
+    private User courier;
+    @ManyToOne
+    @JoinColumn(name = "cook_id", referencedColumnName = "id")
+    private User cook;
 }

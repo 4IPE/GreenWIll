@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import useAuth from '@/hooks/useAuth'
 import { useCart } from '@/context/CartContext'
 import axiosConfig from '@/config/axiosConfig'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface UserInfo {
   username: string
@@ -28,6 +29,8 @@ export default function Basket() {
   const router = useRouter()
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [showMissingFieldsDialog, setShowMissingFieldsDialog] = useState(false)
+  const [missingFields, setMissingFields] = useState<string[]>([])
 
   useEffect(() => {
     if (!authLoading && isLoggedIn && isInitialLoad) {
@@ -76,6 +79,19 @@ export default function Basket() {
 
   const handleCreateOrder = async () => {
     if (!userInfo) return
+    
+    // Проверяем наличие необходимых данных
+    const missing = []
+    if (!userInfo.phone) missing.push('номер телефона')
+    if (!userInfo.address) missing.push('адрес доставки')
+    if (!userInfo.email) missing.push('email')
+
+    if (missing.length > 0) {
+      setMissingFields(missing)
+      setShowMissingFieldsDialog(true)
+      return
+    }
+
     try {
       const orderData = {
         user: {
@@ -101,100 +117,131 @@ export default function Basket() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Ваша Корзина</h1>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Содержимое Заказа</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {cartItems.length > 0 ? (
-              cartItems.map((item) => (
-                <motion.div
-                  key={item.product.id}
-                  layout
-                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 p-4 border rounded"
-                >
-                  <div className="mb-2 sm:mb-0">
-                    <h3 className="font-semibold">{item.product.name}</h3>
-                    <p className="text-sm text-gray-500">{item.product.price} ₽</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button 
-                      size="icon" 
-                      variant="outline" 
-                      onClick={() => handleDecrement(item.product.id)}
-                      disabled={loadingItems.has(item.product.id)}
-                    >
-                      {loadingItems.has(item.product.id) ? (
-                        <span className="animate-spin">⟳</span>
-                      ) : (
-                        <Minus className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <motion.span 
-                      className="w-8 text-center"
-                      animate={{ scale: loadingItems.has(item.product.id) ? 0.95 : 1 }}
-                    >
-                      {item.countProducts}
-                    </motion.span>
-                    <Button 
-                      size="icon" 
-                      variant="outline" 
-                      onClick={() => handleIncrement(item.product.id)}
-                      disabled={loadingItems.has(item.product.id)}
-                    >
-                      {loadingItems.has(item.product.id) ? (
-                        <span className="animate-spin">⟳</span>
-                      ) : (
-                        <Plus className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button 
-                      size="icon" 
-                      variant="destructive" 
-                      onClick={() => handleRemove(item.product.id)}
-                      disabled={loadingItems.has(item.product.id)}
-                    >
-                      {loadingItems.has(item.product.id) ? (
-                        <span className="animate-spin">⟳</span>
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <p className="text-center py-4">Ваша корзина пуста</p>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <div className="text-xl font-semibold">Итого:</div>
-            <div className="text-xl font-semibold">{total} ₽</div>
-          </CardFooter>
-        </Card>
-
-        {cartItems.length > 0 && (
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <Button className="flex-1" onClick={() => router.push('/menu')}>
-              Продолжить покупки
-            </Button>
-            <Button className="flex-1" onClick={handleCreateOrder}>
-              Оформить Заказ
-            </Button>
+    <>
+      <div className="container mx-auto px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Ваша Корзина</h1>
           </div>
-        )}
-      </motion.div>
-    </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Содержимое Заказа</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {cartItems.length > 0 ? (
+                cartItems.map((item) => (
+                  <motion.div
+                    key={item.product.id}
+                    layout
+                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 p-4 border rounded"
+                  >
+                    <div className="mb-2 sm:mb-0">
+                      <h3 className="font-semibold">{item.product.name}</h3>
+                      <p className="text-sm text-gray-500">{item.product.price} ₽</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button 
+                        size="icon" 
+                        variant="outline" 
+                        onClick={() => handleDecrement(item.product.id)}
+                        disabled={loadingItems.has(item.product.id)}
+                      >
+                        {loadingItems.has(item.product.id) ? (
+                          <span className="animate-spin">⟳</span>
+                        ) : (
+                          <Minus className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <motion.span 
+                        className="w-8 text-center"
+                        animate={{ scale: loadingItems.has(item.product.id) ? 0.95 : 1 }}
+                      >
+                        {item.countProducts}
+                      </motion.span>
+                      <Button 
+                        size="icon" 
+                        variant="outline" 
+                        onClick={() => handleIncrement(item.product.id)}
+                        disabled={loadingItems.has(item.product.id)}
+                      >
+                        {loadingItems.has(item.product.id) ? (
+                          <span className="animate-spin">⟳</span>
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="destructive" 
+                        onClick={() => handleRemove(item.product.id)}
+                        disabled={loadingItems.has(item.product.id)}
+                      >
+                        {loadingItems.has(item.product.id) ? (
+                          <span className="animate-spin">⟳</span>
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-center py-4">Ваша корзина пуста</p>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <div className="text-xl font-semibold">Итого:</div>
+              <div className="text-xl font-semibold">{total} ₽</div>
+            </CardFooter>
+          </Card>
+
+          {cartItems.length > 0 && (
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Button className="flex-1" onClick={() => router.push('/menu')}>
+                Продолжить покупки
+              </Button>
+              <Button className="flex-1" onClick={handleCreateOrder}>
+                Оформить Заказ
+              </Button>
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      <Dialog open={showMissingFieldsDialog} onOpenChange={setShowMissingFieldsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Не хватает данных для оформления заказа</DialogTitle>
+            <DialogDescription className="space-y-4">
+              <p>
+                Для оформления заказа необходимо заполнить следующие данные в личном кабинете:
+              </p>
+              <ul className="list-disc pl-4">
+                {missingFields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+              <div className="flex justify-end gap-4 pt-4">
+                <Button variant="outline" onClick={() => setShowMissingFieldsDialog(false)}>
+                  Отмена
+                </Button>
+                <Button onClick={() => {
+                  setShowMissingFieldsDialog(false)
+                  router.push('/profile')
+                }}>
+                  Перейти в профиль
+                </Button>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR NOT NULL UNIQUE,
     password VARCHAR NOT NULL,
     role_id BIGINT NOT NULL,
-    email VARCHAR,
-    phone VARCHAR,
+    email VARCHAR UNIQUE,
+    phone VARCHAR UNIQUE,
     first_name VARCHAR,
     last_name VARCHAR,
     address VARCHAR,
@@ -49,8 +49,12 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id BIGINT NOT NULL,
     cart_id BIGINT NOT NULL,
     status VARCHAR,
+    courier_id BIGINT,
+    cook_id BIGINT,
     CONSTRAINT fk_user_orders FOREIGN KEY(user_id) REFERENCES users(id),
-    CONSTRAINT fk_cart_orders FOREIGN KEY(cart_id) REFERENCES carts(id)
+    CONSTRAINT fk_cart_orders FOREIGN KEY(cart_id) REFERENCES carts(id),
+    CONSTRAINT fk_cook_orders FOREIGN KEY(cook_id) REFERENCES users(id),
+    CONSTRAINT fk_courier_orders FOREIGN KEY(courier_id) REFERENCES users(id)
 );
 
 

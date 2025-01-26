@@ -44,4 +44,19 @@ public class UserController {
         return ResponseEntity.ok("Профиль успешно обновлен.");
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<?> checkUsername(@RequestParam String username) {
+        log.info(username);
+        return ResponseEntity.ok(userService.existsByUsername(username));
+    }
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        log.info(email);
+        return ResponseEntity.ok(userService.existsByEmail(email));
+    }
+    @GetMapping("/check-phone")
+    public ResponseEntity<?> checkPhone(@RequestParam String phone) {
+        log.info(phone);
+        return ResponseEntity.ok(userService.existsByPhone(phone));
+    }
 }

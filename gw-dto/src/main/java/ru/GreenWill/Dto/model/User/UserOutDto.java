@@ -8,11 +8,12 @@ import ru.GreenWill.Dto.model.RoleDto;
 import java.util.Set;
 
 
-public record UserOutDto(@NotNull @NotEmpty @NotBlank String username,
-                         @NotNull @NotEmpty RoleDto role,
-                         String email,
-                         String phone,
-                         String firstName,
-                         String lastName,
-                         String address) {
-}
+public record UserOutDto(
+    @NotNull @NotEmpty @NotBlank String username,
+    @NotNull @NotEmpty RoleDto role,
+    String email,
+    String phone,
+    String firstName,
+    String lastName,
+    String address
+) {}

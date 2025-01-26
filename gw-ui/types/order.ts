@@ -1,9 +1,8 @@
+import { UserOutDto } from './user'
+
 export interface OrderOutDto {
   id: number
-  user: {
-    username: string
-    role: { role: string }
-  }
+  user: UserOutDto
   cart: {
     id: number
     cartItem: Array<{
@@ -11,6 +10,7 @@ export interface OrderOutDto {
         id: number
         name: string
         price: number
+        description?: string
       }
       countProducts: number
     }>

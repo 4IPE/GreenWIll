@@ -13,15 +13,14 @@ export const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-export const formatOrderStatus = (status: string) => {
-  switch (status) {
-    case 'ACTIVITY':
-      return 'Готовится'
-    case 'WAITING':
-      return 'В ожидании'
-    case 'FINISH':
-      return 'Готов'
-    default:
-      return status
+export function formatOrderStatus(status: string): string {
+  const statusMap: { [key: string]: string } = {
+    WAITING: 'Ожидает подтверждения',
+    ACTIVITY: 'Готовится',
+    GOES: 'Принят в доставку',
+    RUN: 'Доставляется',
+    COMPLETED: 'Доставлен',
+    REJECTED: 'Отменён'
   }
+  return statusMap[status] || status
 }

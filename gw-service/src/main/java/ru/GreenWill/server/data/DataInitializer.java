@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import ru.GreenWill.server.enumarated.RoleName;
 import ru.GreenWill.server.model.Product;
 import ru.GreenWill.server.model.Role;
+import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.repository.ProductRepository;
 import ru.GreenWill.server.repository.RoleRepository;
+import ru.GreenWill.server.repository.UserRepository;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class DataInitializer {
 
     private final ProductRepository productRepository;
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
 
     @PostConstruct

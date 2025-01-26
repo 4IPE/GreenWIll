@@ -33,6 +33,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         User user = new User();
         user.setUsername(request.username());
+        user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(roleService.getRoleWithName(RoleName.ROLE_USER));
 
@@ -46,7 +47,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public void singIn(UserSingInDto request, HttpServletResponse response) {
-        log.info("Я зашел в singIn ");
         var user = userService
                 .userDetailsService()
                 .loadUserByUsername(request.username());
@@ -54,6 +54,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         var jwt = jwtService.createToken(user.getUsername());
         response.addCookie(createJwtCookie(jwt));
 
+    }
+
+    @Override
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 
     private Cookie createJwtCookie(String jwt) {

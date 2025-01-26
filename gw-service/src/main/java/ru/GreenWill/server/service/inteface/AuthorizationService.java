@@ -14,4 +14,6 @@ public interface AuthorizationService {
 
     @Transactional
     void singIn(UserSingInDto request, HttpServletResponse response);
+
+    void logout(HttpServletResponse response);
 }

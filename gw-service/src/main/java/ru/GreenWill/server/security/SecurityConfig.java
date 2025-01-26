@@ -31,12 +31,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/products/all", "/user/status")
+                        .requestMatchers("/login", "/register", "/products/all", "/user/status","/user/check","/user/check-email")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/auth/logout")
                         .deleteCookies("token")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(200);

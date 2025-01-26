@@ -20,19 +20,19 @@ export default function Header() {
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
             <Link href="/menu">
               <Utensils className="w-4 h-4 mr-2" />
-              Menu
+              Меню
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
             <Link href="/profile">
               <User className="w-4 h-4 mr-2" />
-              Profile
+              Профиль
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
             <Link href="/basket">
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Basket
+              Корзина
               <Badge>
                 {isLoading ? '...' : cartItems.length}
               </Badge>
@@ -50,19 +50,19 @@ export default function Header() {
               <Button asChild variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
                 <Link href="/menu">
                   <Utensils className="w-4 h-4 mr-2" />
-                  Menu
+                  Меню
                 </Link>
               </Button>
               <Button asChild variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
                 <Link href="/profile">
                   <User className="w-4 h-4 mr-2" />
-                  Profile
+                  Профиль
                 </Link>
               </Button>
               <Button asChild variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
                 <Link href="/basket">
                   <ShoppingCart className="w-4 h-4 mr-2" />
-                  Basket
+                  Корзина
                   <Badge>
                     {isLoading ? '...' : cartItems.length}
                   </Badge>

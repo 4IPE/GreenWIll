@@ -19,6 +19,12 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByPhone(String phone);
+
     UserDetailsService userDetailsService();
 
     @Transactional
@@ -27,6 +33,6 @@ public interface UserService {
     User getUserWithCookie(HttpServletRequest request);
 
     ResponseEntity<String> validCookies(HttpServletRequest request);
-
+    @Transactional
     void updateUserProfile(UserOutDto userDto, HttpServletRequest request);
 }

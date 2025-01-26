@@ -1,19 +1,19 @@
 export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8">About GreenWill</h1>
+      <h1 className="text-3xl font-bold mb-8">О GreenWill</h1>
       <div className="space-y-6">
         <p>
-          GreenWill is a revolutionary food delivery service that focuses on providing quick, healthy, and delicious meals to our customers. We believe that eating well shouldn&apos;t be a compromise between taste, health, and convenience.
+          GreenWill - это инновационный сервис доставки еды, который фокусируется на предоставлении быстрых, здоровых и вкусных блюд нашим клиентам. Мы верим, что здоровое питание не должно быть компромиссом между вкусом, здоровьем и удобством.
         </p>
         <p>
-          Founded in 2023, our mission is to make nutritious food accessible to everyone, no matter how busy their lifestyle. We work with local farms and suppliers to ensure that our ingredients are fresh, sustainably sourced, and of the highest quality.
+          Основанная в 2023 году, наша миссия - сделать полезную еду доступной для каждого, независимо от того, насколько загружен их образ жизни. Мы работаем с местными фермами и поставщиками, чтобы гарантировать, что наши ингредиенты свежие, экологически чистые и высочайшего качества.
         </p>
         <p>
-          Our team of expert chefs crafts each meal with care, balancing flavors and nutrients to create dishes that are not only good for you but also satisfying and enjoyable. From hearty salads to protein-packed bowls, we have options to suit every taste and dietary requirement.
+          Наша команда опытных поваров готовит каждое блюдо с заботой, балансируя вкус и питательные вещества, чтобы создавать блюда, которые не только полезны для вас, но и приносят удовольствие. От сытных салатов до питательных боулов - у нас есть варианты на любой вкус и диетические требования.
         </p>
         <p>
-          At GreenWill, we&apos;re not just delivering food - we&apos;re delivering a healthier, happier lifestyle. Join us in our mission to make the world a little greener, one meal at a time.
+          В GreenWill мы не просто доставляем еду - мы доставляем более здоровый и счастливый образ жизни. Присоединяйтесь к нам в нашей миссии сделать мир немного зеленее, один заказ за раз.
         </p>
       </div>
     </div>

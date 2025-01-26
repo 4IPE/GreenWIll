@@ -6,9 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import ru.GreenWill.Dto.model.Cart.CartOutDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
 
-
-public record OrderOutDto(@NotNull @NotEmpty @NotBlank UserOutDto user,
-                          @NotNull @NotEmpty @NotBlank CartOutDto cart,
-                          @NotNull Long id,
-                          @NotNull @NotEmpty @NotBlank String status) {
-}
+public record OrderOutDto(
+    @NotNull Long id,
+    @NotNull @NotEmpty @NotBlank String status,
+    @NotNull UserOutDto user,
+    @NotNull CartOutDto cart,
+    String address,
+    String phone
+) {}

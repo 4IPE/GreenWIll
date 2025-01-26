@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { UserCircle, Edit, Mail, Phone, MapPin } from 'lucide-react'
+import { UserCircle, Edit, Mail, Phone, MapPin, LogOut } from 'lucide-react'
 import FAQ from "@/components/faq"
 import axiosConfig from '@/config/axiosConfig'
 import useAuth from '@/hooks/useAuth'
@@ -15,6 +15,9 @@ import { useRouter } from 'next/navigation'
 import { OrderOutDto } from '@/types/order'
 import { OrderReceiptModal } from "@/components/order-receipt-modal"
 import { formatCurrency, formatOrderStatus } from "@/lib/utils"
+import { OrderDetails } from "@/components/order-details"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { toast } from "@/components/ui/use-toast"
 
 interface UserProfile {
   username: string
@@ -23,6 +26,9 @@ interface UserProfile {
   email: string
   phone: string
   address: string
+  role: {  
+    role: string
+  }
 }
 
 export const dynamic = 'force-dynamic'
@@ -45,11 +51,18 @@ export default function Profile() {
     lastName: '',
     email: '',
     phone: '',
-    address: ''
+    address: '',
+    role: {  
+      role: ''
+    }
   })
   const [activeOrders, setActiveOrders] = useState<OrderOutDto[]>([])
   const [orderHistory, setOrderHistory] = useState<OrderOutDto[]>([])
   const [selectedOrder, setSelectedOrder] = useState<OrderOutDto | null>(null)
+  const [waitingOrders, setWaitingOrders] = useState<OrderOutDto[]>([])
+  const [deliveryOrders, setDeliveryOrders] = useState<OrderOutDto[]>([])
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const [runningOrders, setRunningOrders] = useState<OrderOutDto[]>([])
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
@@ -61,6 +74,7 @@ export default function Profile() {
       const fetchUserInfo = async () => {
         try {
           const response = await axiosConfig.get("/api/user/profile", { withCredentials: true })
+          console.log('User profile response:', response.data)
           setUserInfo(response.data)
           setInitialValues({
             email: response.data.email,
@@ -94,6 +108,36 @@ export default function Profile() {
     }
   }, [isLoggedIn])
 
+  useEffect(() => {
+    console.log('Current user info:', userInfo)
+    
+    const fetchOrders = async () => {
+      if (isLoggedIn && userInfo.role?.role === 'ROLE_COOK') {
+        try {
+          const response = await axiosConfig.get('/api/orders/waiting')
+          setWaitingOrders(response.data)
+        } catch (err) {
+          console.error('Failed to fetch waiting orders:', err)
+        }
+      }
+
+      if (isLoggedIn && userInfo.role?.role === 'ROLE_COURIER') {
+        try {
+          const [deliveryResponse, runningResponse] = await Promise.all([
+            axiosConfig.get('/api/orders/delivery'),
+            axiosConfig.get('/api/orders/running')
+          ])
+          setDeliveryOrders(deliveryResponse.data)
+          setRunningOrders(runningResponse.data)
+        } catch (err) {
+          console.error('Failed to fetch orders:', err)
+        }
+      }
+    }
+
+    fetchOrders()
+  }, [isLoggedIn, userInfo])
+
   const handleSave = async () => {
     try {
       await axiosConfig.post(
@@ -121,6 +165,130 @@ export default function Profile() {
     [orderHistory]
   )
 
+  const checkRequiredFields = () => {
+    if (!userInfo) return []
+    const missing = []
+    
+    if (!userInfo.phone) missing.push('номер телефона')
+    if (!userInfo.email) missing.push('email')
+    if (!userInfo.firstName) missing.push('имя')
+    if (!userInfo.lastName) missing.push('фамилию')
+    if (!userInfo.address) missing.push('адрес')
+    
+    return missing
+  }
+
+  const handleAcceptOrder = async (orderId: number) => {
+    const missingFields = checkRequiredFields()
+    if (missingFields.length > 0) {
+      toast({
+        title: "Необходимо заполнить профиль",
+        description: `Пожалуйста, укажите ${missingFields.join(', ')} перед принятием заказов`,
+        variant: "destructive",
+      })
+      return
+    }
+    
+    try {
+      await axiosConfig.patch('/api/order/status/accept', null, {
+        params: { orderId }
+      })
+      const response = await axiosConfig.get('/api/orders/waiting')
+      setWaitingOrders(response.data)
+    } catch (err) {
+      console.error('Failed to accept order:', err)
+    }
+  }
+
+  const handleReadyOrder = async (orderId: number) => {
+    try {
+      await axiosConfig.patch('/api/order/status/ready', null, {
+        params: { orderId }
+      })
+      // Обновляем список заказов
+      const response = await axiosConfig.get('/api/orders/waiting')
+      setWaitingOrders(response.data)
+    } catch (err) {
+      console.error('Failed to mark order as ready:', err)
+    }
+  }
+
+  const handleRejectOrder = async (orderId: number) => {
+    try {
+      await axiosConfig.patch('/api/order/status', null, {
+        params: { 
+          idOrder: orderId,
+          status: 'REJECTED'
+        }
+      })
+      const response = await axiosConfig.get('/api/orders/waiting')
+      setWaitingOrders(response.data)
+    } catch (err) {
+      console.error('Failed to reject order:', err)
+    }
+  }
+
+  const handleDeliveredOrder = async (orderId: number) => {
+    const missingFields = checkRequiredFields()
+    if (missingFields.length > 0) {
+      toast({
+        title: "Необходимо заполнить профиль",
+        description: `Пожалуйста, укажите ${missingFields.join(', ')} перед принятием доставок`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      await axiosConfig.patch('/api/order/status/delivered', null, {
+        params: { orderId }
+      })
+      const response = await axiosConfig.get('/api/orders/delivery')
+      setDeliveryOrders(response.data)
+    } catch (err) {
+      console.error('Failed to mark order as delivered:', err)
+    }
+  }
+
+  const handleTakeOrder = async (orderId: number) => {
+    const missingFields = checkRequiredFields()
+    if (missingFields.length > 0) {
+      toast({
+        title: "Необходимо заполнить профиль",
+        description: `Пожалуйста, укажите ${missingFields.join(', ')} перед принятием доставок`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      await axiosConfig.patch('/api/order/status/take', null, {
+        params: { orderId }
+      })
+      const [deliveryResponse, runningResponse] = await Promise.all([
+        axiosConfig.get('/api/orders/delivery'),
+        axiosConfig.get('/api/orders/running')
+      ])
+      setDeliveryOrders(deliveryResponse.data)
+      setRunningOrders(runningResponse.data)
+    } catch (err) {
+      console.error('Failed to take order:', err)
+    }
+  }
+
+  const handleLogout = () => {
+    setShowLogoutDialog(true)
+  }
+
+  const confirmLogout = async () => {
+    try {
+      await axiosConfig.post('/api/auth/logout')
+      router.push('/login')
+    } catch (err) {
+      console.error('Failed to logout:', err)
+    }
+  }
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -132,9 +300,15 @@ export default function Profile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="flex items-center gap-4 mb-8">
-          <UserCircle className="h-12 w-12" />
-          <h1 className="text-3xl font-bold">Мой профиль</h1>
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <UserCircle className="h-12 w-12" />
+            <h1 className="text-3xl font-bold">Мой профиль</h1>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Выйти
+          </Button>
         </div>
 
         <Tabs defaultValue="profile" className="flex flex-col md:flex-row gap-8">
@@ -149,6 +323,21 @@ export default function Profile() {
               <TabsTrigger value="history" className={tabStyles}>
                 История заказов
               </TabsTrigger>
+              {userInfo.role?.role === 'ROLE_COOK' && (
+                <TabsTrigger value="cooking" className={tabStyles}>
+                  Заказы
+                </TabsTrigger>
+              )}
+              {userInfo.role?.role === 'ROLE_COURIER' && (
+                <>
+                  <TabsTrigger value="delivery" className={tabStyles}>
+                    Доставка
+                  </TabsTrigger>
+                  <TabsTrigger value="running" className={tabStyles}>
+                    В доставке
+                  </TabsTrigger>
+                </>
+              )}
             </TabsList>
           </div>
 
@@ -353,6 +542,117 @@ export default function Profile() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {userInfo.role?.role === 'ROLE_COOK' && (
+              <TabsContent value="cooking">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Заказы в ожидании</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {waitingOrders.map((order) => (
+                        <motion.div
+                          key={order.id}
+                          className="p-4 border rounded"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                        >
+                          <OrderDetails 
+                            order={order} 
+                            showCookingInfo={true}
+                          />
+                          {order.status === 'WAITING' && (
+                            <div className="flex gap-2 mt-4">
+                              <Button onClick={() => handleAcceptOrder(order.id)}>
+                                Принять в работу
+                              </Button>
+                              <Button 
+                                variant="destructive"
+                                onClick={() => handleRejectOrder(order.id)}
+                              >
+                                Отклонить
+                              </Button>
+                            </div>
+                          )}
+                          {order.status === 'ACTIVITY' && (
+                            <div className="flex gap-2 mt-4">
+                              <Button onClick={() => handleReadyOrder(order.id)}>
+                                Готов ✓
+                              </Button>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+
+            {userInfo.role?.role === 'ROLE_COURIER' && (
+              <>
+                <TabsContent value="delivery">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Заказы на доставку</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {deliveryOrders.map((order) => (
+                          <motion.div
+                            key={order.id}
+                            className="p-4 border rounded"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                          >
+                            <OrderDetails 
+                              order={order} 
+                              showDeliveryInfo={true}
+                            />
+                            <div className="flex gap-2 mt-4">
+                              <Button onClick={() => handleTakeOrder(order.id)}>
+                                Взять в доставку
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="running">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Заказы в доставке</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {runningOrders.map((order) => (
+                          <motion.div
+                            key={order.id}
+                            className="p-4 border rounded"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                          >
+                            <OrderDetails 
+                              order={order} 
+                              showDeliveryInfo={true}
+                            />
+                            <div className="flex gap-2 mt-4">
+                              <Button onClick={() => handleDeliveredOrder(order.id)}>
+                                Доставлено
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </>
+            )}
           </div>
         </Tabs>
 
@@ -366,6 +666,25 @@ export default function Profile() {
         isOpen={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />
+
+      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Подтверждение выхода</DialogTitle>
+            <DialogDescription>
+              Вы действительно хотите выйти из аккаунта?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+              Отмена
+            </Button>
+            <Button variant="destructive" onClick={confirmLogout}>
+              Выйти
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

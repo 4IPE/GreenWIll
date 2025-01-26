@@ -35,4 +35,10 @@ public class AuthController {
         return ResponseEntity.ok().body("Registry success");
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        authorizationService.logout(response);
+        return ResponseEntity.ok().body("Successfully logged out");
+    }
+
 }

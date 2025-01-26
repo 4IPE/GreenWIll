@@ -3,5 +3,9 @@ package ru.GreenWill.server.enumarated;
 public enum Status {
     FINISH,
     WAITING,
-    ACTIVITY
+    ACTIVITY,
+    COMPLETED,
+    GOES,
+    REJECTED,
+    RUN
 }

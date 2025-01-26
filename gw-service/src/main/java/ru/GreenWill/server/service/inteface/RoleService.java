@@ -10,13 +10,14 @@
 package ru.GreenWill.server.service.inteface;
 
 
+import jakarta.transaction.Transactional;
 import ru.GreenWill.Dto.model.RoleDto;
 import ru.GreenWill.server.enumarated.RoleName;
 import ru.GreenWill.server.model.Role;
 
 public interface RoleService {
 
-
+    @Transactional
     void saveRole(RoleDto role);
 
 
