@@ -19,6 +19,7 @@ interface Meal {
   image: string
   calories: number
   category: string
+  energyVal: number
 }
 
 interface MealModalProps {
@@ -42,13 +43,14 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
 
       await addToCart({
         product: {
+          id: meal.id,
           name: meal.name,
           description: meal.description,
           price: meal.price,
           calories: meal.calories,
           category: meal.category,
           img: meal.image,
-          id: meal.id
+          energyVal: meal.energyVal
         },
         countProducts: 1
       })
@@ -78,7 +80,9 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
           />
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold">{meal.price} ₽</span>
-            <span className="text-muted-foreground">{meal.calories} калорий</span>
+            <span className="text-muted-foreground">
+              {meal.calories} калорий | КБЖУ: {meal.energyVal}
+            </span>
           </div>
         </div>
         <Button 

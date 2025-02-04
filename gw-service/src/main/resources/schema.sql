@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS products (
         price INTEGER NOT NULL,
         calories INTEGER NOT NULL,
         category VARCHAR NOT NULL,
-        img VARCHAR NOT NULL
+        img VARCHAR NOT NULL,
+        energy_val INTEGER NOT NULL
         );
 
 

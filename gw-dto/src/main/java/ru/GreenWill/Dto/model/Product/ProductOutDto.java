@@ -12,6 +12,6 @@ public record ProductOutDto(@NotNull  Long id ,
                             @NotNull @NotEmpty @NotBlank @PositiveOrZero Integer price,
                             @NotNull @NotEmpty @NotBlank @PositiveOrZero Integer calories,
                             @NotNull @NotEmpty @NotBlank String category,
-                            @NotNull @NotEmpty @NotBlank String img) {
+                            @NotNull @NotEmpty @NotBlank String img,
+                            @NotNull @NotEmpty @NotBlank Integer energyVal) {
 }
-//TODO

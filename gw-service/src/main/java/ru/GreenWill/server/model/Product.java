@@ -27,6 +27,8 @@ public class Product {
     private String category;
     @Column
     private String img;
+    @Column(name = "energy_val")
+    private Integer energyVal;
 
     @Override
     public String toString() {

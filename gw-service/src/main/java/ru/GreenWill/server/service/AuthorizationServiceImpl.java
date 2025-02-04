@@ -6,6 +6,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserSingInDto;
@@ -53,7 +58,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         log.info("User {}", user);
         var jwt = jwtService.createToken(user.getUsername());
         response.addCookie(createJwtCookie(jwt));
-
     }
 
     @Override

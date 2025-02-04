@@ -22,4 +22,6 @@ public interface RoleService {
 
 
     Role getRoleWithName(RoleName name);
+
+    void updateRoleWithUser(String username, String roleName);
 }

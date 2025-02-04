@@ -15,6 +15,7 @@ interface Meal {
   description: string
   calories: number
   category: string
+  energyVal: number
 }
 
 interface ApiMeal {
@@ -24,7 +25,8 @@ interface ApiMeal {
   image: string
   description: string
   calories: number
-  category?: string  // опциональное поле, так как может отсутствовать в ответе
+  category?: string  
+  energyVal: number
 }
 
 export default function Menu() {

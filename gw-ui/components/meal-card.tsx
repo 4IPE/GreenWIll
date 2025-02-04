@@ -21,6 +21,7 @@ interface Meal {
   image: string
   calories: number
   category: string
+  energyVal: number
 }
 
 interface MealCardProps {
@@ -50,7 +51,8 @@ export default function MealCard({ meal, onSelect }: MealCardProps) {
           price: meal.price,
           calories: meal.calories,
           category: meal.category,
-          img: meal.image
+          img: meal.image,
+          energyVal: meal.energyVal
         },
         countProducts: 1
       })

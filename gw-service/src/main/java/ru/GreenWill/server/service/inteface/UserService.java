@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.GreenWill.Dto.model.User.UserOutDto;
+import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.model.User;
 
 public interface UserService {
@@ -35,4 +36,6 @@ public interface UserService {
     ResponseEntity<String> validCookies(HttpServletRequest request);
     @Transactional
     void updateUserProfile(UserOutDto userDto, HttpServletRequest request);
+    @Transactional
+    void updateUserRole(String username, Role role);
 }

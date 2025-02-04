@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { UserCircle, Edit, Mail, Phone, MapPin, LogOut } from 'lucide-react'
+import { UserCircle, Edit, Mail, Phone, MapPin, LogOut, Settings } from 'lucide-react'
 import FAQ from "@/components/faq"
 import axiosConfig from '@/config/axiosConfig'
 import useAuth from '@/hooks/useAuth'
@@ -18,6 +18,9 @@ import { formatCurrency, formatOrderStatus } from "@/lib/utils"
 import { OrderDetails } from "@/components/order-details"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { FileInput } from "@/components/ui/file-input"
 
 interface UserProfile {
   username: string
@@ -29,6 +32,16 @@ interface UserProfile {
   role: {  
     role: string
   }
+}
+
+interface ProductForm {
+  name: string
+  description: string
+  price: string
+  calories: string
+  category: string
+  img: string
+  energyVal: string
 }
 
 export const dynamic = 'force-dynamic'
@@ -63,6 +76,18 @@ export default function Profile() {
   const [deliveryOrders, setDeliveryOrders] = useState<OrderOutDto[]>([])
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [runningOrders, setRunningOrders] = useState<OrderOutDto[]>([])
+  const [productForm, setProductForm] = useState<ProductForm>({
+    name: '',
+    description: '',
+    price: '',
+    calories: '',
+    category: '',
+    img: '',
+    energyVal: ''
+  })
+  const [roleUsername, setRoleUsername] = useState('')
+  const [selectedRole, setSelectedRole] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
@@ -289,6 +314,75 @@ export default function Profile() {
     }
   }
 
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+    
+    try {
+      await axiosConfig.post('/api/admin/add', {
+        name: productForm.name,
+        description: productForm.description,
+        price: productForm.price,
+        calories: productForm.calories,
+        category: productForm.category,
+        img: productForm.img,
+        energyVal: productForm.energyVal
+      })
+      
+      toast({
+        title: "Успех",
+        description: "Продукт успешно добавлен",
+      })
+      setProductForm({
+        name: '',
+        description: '',
+        price: '',
+        calories: '',
+        category: '',
+        img: '',
+        energyVal: ''
+      })
+    } catch (err) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить продукт",
+        variant: "destructive",
+      })
+      console.error('Failed to add product:', err)
+    }
+    
+    setIsSaving(false)
+  }
+
+  const handleRoleChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+
+    try {
+      await axiosConfig.get('/api/admin/edit/role', {
+        params: {
+          username: roleUsername,
+          roleName: selectedRole
+        }
+      })
+      toast({
+        title: "Успех",
+        description: "Роль пользователя обновлена",
+      })
+      setRoleUsername('')
+      setSelectedRole('')
+    } catch (err) {
+      toast({
+        title: "Ошибка", 
+        description: "Не удалось обновить роль",
+        variant: "destructive",
+      })
+      console.error('Failed to change role:', err)
+    }
+
+    setIsSaving(false)
+  }
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -337,6 +431,12 @@ export default function Profile() {
                     В доставке
                   </TabsTrigger>
                 </>
+              )}
+              {userInfo.role?.role === 'ROLE_ADMIN' && (
+                <TabsTrigger value="settings" className={tabStyles}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Настройки
+                </TabsTrigger>
               )}
             </TabsList>
           </div>
@@ -652,6 +752,156 @@ export default function Profile() {
                   </Card>
                 </TabsContent>
               </>
+            )}
+
+            {userInfo.role?.role === 'ROLE_ADMIN' && (
+              <TabsContent value="settings">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Добавить продукт</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <form onSubmit={handleAddProduct} className="space-y-4">
+                        <div>
+                          <Label htmlFor="name">Название</Label>
+                          <Input
+                            id="name"
+                            value={productForm.name}
+                            onChange={(e) => setProductForm(prev => ({...prev, name: e.target.value}))}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="description">Описание</Label>
+                          <Textarea
+                            id="description"
+                            value={productForm.description}
+                            onChange={(e) => setProductForm(prev => ({...prev, description: e.target.value}))}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="price">Цена</Label>
+                          <Input
+                            id="price"
+                            value={productForm.price}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '') // Только цифры
+                              if (value === '' || parseInt(value) >= 0) {
+                                setProductForm(prev => ({...prev, price: value}))
+                              }
+                            }}
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="calories">Калории</Label>
+                          <Input
+                            id="calories"
+                            value={productForm.calories}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '') // Только цифры
+                              if (value === '' || parseInt(value) >= 0) {
+                                setProductForm(prev => ({...prev, calories: value}))
+                              }
+                            }}
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="category">Категория</Label>
+                          <Input
+                            id="category"
+                            value={productForm.category}
+                            onChange={(e) => setProductForm(prev => ({...prev, category: e.target.value}))}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="image">Изображение</Label>
+                          <FileInput
+                            id="image"
+                            onChange={(path) => setProductForm(prev => ({...prev, img: path}))}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="energyVal">КБЖУ</Label>
+                          <Input
+                            id="energyVal"
+                            value={productForm.energyVal}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '')
+                              if (value === '' || parseInt(value) >= 0) {
+                                setProductForm(prev => ({...prev, energyVal: value}))
+                              }
+                            }}
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            required
+                          />
+                        </div>
+
+                        <Button type="submit" disabled={isSaving}>
+                          {isSaving ? "Сохранение..." : "Добавить продукт"}
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Управление ролями</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <form onSubmit={handleRoleChange} className="space-y-4">
+                        <div>
+                          <Label htmlFor="username">Имя пользователя</Label>
+                          <Input
+                            id="username"
+                            value={roleUsername}
+                            onChange={(e) => setRoleUsername(e.target.value)}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="role">Роль</Label>
+                          <Select 
+                            value={selectedRole} 
+                            onValueChange={setSelectedRole}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите роль" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ROLE_USER">Пользователь</SelectItem>
+                              <SelectItem value="ROLE_COOK">Повар</SelectItem>
+                              <SelectItem value="ROLE_COURIER">Курьер</SelectItem>
+                              <SelectItem value="ROLE_ADMIN">Администратор</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <Button type="submit" disabled={isSaving}>
+                          {isSaving ? "Сохранение..." : "Изменить роль"}
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
             )}
           </div>
         </Tabs>

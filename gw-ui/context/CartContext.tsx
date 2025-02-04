@@ -13,6 +13,7 @@ interface ProductDto {
   calories: number
   category: string
   img: string
+  energyVal: number
 }
 
 interface CartItemDto {

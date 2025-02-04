@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
 import ru.GreenWill.server.mapper.UserMapper;
+import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.repository.UserRepository;
 import ru.GreenWill.server.security.jwt.JwtTokenProvider;
@@ -97,6 +98,13 @@ public class UserServiceImpl implements UserService {
         if (userDto.firstName() != null) user.setFirstName(userDto.firstName());
         if (userDto.lastName() != null) user.setLastName(userDto.lastName());
         if (userDto.address() != null) user.setAddress(userDto.address());
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateUserRole(String username, Role role) {
+        User user = getUserByUsername(username);
+        user.setRole(role);
         userRepository.save(user);
     }
 
