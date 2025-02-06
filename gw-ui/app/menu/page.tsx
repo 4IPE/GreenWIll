@@ -11,7 +11,7 @@ interface Meal {
   id: number
   name: string
   price: number
-  image: string
+  img: string
   description: string
   calories: number
   category: string
@@ -22,7 +22,7 @@ interface ApiMeal {
   id: number
   name: string
   price: number
-  image: string
+  img: string
   description: string
   calories: number
   category?: string  

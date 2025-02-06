@@ -21,6 +21,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FileInput } from "@/components/ui/file-input"
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete"
 
 interface UserProfile {
   username: string
@@ -510,15 +511,12 @@ export default function Profile() {
                         />
                       </div>
 
-                      <div>
-                        <Label htmlFor="address" className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" /> Адрес
-                        </Label>
-                        <Input
-                          id="address"
-                          value={userInfo.address}
-                          onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
-                          placeholder="Введите адрес"
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Адрес доставки</Label>
+                        <AddressAutocomplete
+                          value={userInfo.address || ''}
+                          onChange={(newAddress) => setUserInfo({ ...userInfo, address: newAddress })}
+                          placeholder="Введите адрес доставки"
                         />
                       </div>
 

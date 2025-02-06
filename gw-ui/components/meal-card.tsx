@@ -18,9 +18,9 @@ interface Meal {
   name: string
   description: string
   price: number
-  image: string
   calories: number
   category: string
+  img: string
   energyVal: number
 }
 
@@ -51,7 +51,7 @@ export default function MealCard({ meal, onSelect }: MealCardProps) {
           price: meal.price,
           calories: meal.calories,
           category: meal.category,
-          img: meal.image,
+          img: meal.img,
           energyVal: meal.energyVal
         },
         countProducts: 1
@@ -70,14 +70,16 @@ export default function MealCard({ meal, onSelect }: MealCardProps) {
         <CardTitle>{meal.name}</CardTitle>
         <CardDescription>{meal.description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <Image
-          src={meal.image}
-          alt={meal.name}
-          width={400}
-          height={300}
-          className="w-full h-48 object-cover rounded-md"
-        />
+      <CardContent className="relative h-64 px-4">
+        <div className="relative h-full w-[95%] mx-auto">
+          <Image
+            src={meal.img}
+            alt={meal.name}
+            fill
+            className="object-cover rounded-md"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </CardContent>
       <CardFooter className="flex justify-between">
         <span className="text-lg font-semibold">{meal.price} ₽</span>

@@ -16,9 +16,9 @@ interface Meal {
   name: string
   description: string
   price: number
-  image: string
   calories: number
   category: string
+  img: string
   energyVal: number
 }
 
@@ -49,7 +49,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
           price: meal.price,
           calories: meal.calories,
           category: meal.category,
-          img: meal.image,
+          img: meal.img,
           energyVal: meal.energyVal
         },
         countProducts: 1
@@ -71,13 +71,15 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
           <DialogDescription>{meal.description}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Image
-            src={meal.image}
-            alt={meal.name}
-            width={300}
-            height={200}
-            className="w-full h-48 object-cover rounded-md"
-          />
+          <div className="relative h-64 w-[95%] mx-auto">
+            <Image
+              src={meal.img}
+              alt={meal.name}
+              fill
+              className="object-cover rounded-md"
+              sizes="(max-width: 425px) 100vw, 425px"
+            />
+          </div>
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold">{meal.price} ₽</span>
             <span className="text-muted-foreground">

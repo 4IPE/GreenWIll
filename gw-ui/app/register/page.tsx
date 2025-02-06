@@ -104,8 +104,8 @@ export default function Register() {
     let isValid = true
 
     // Проверка логина
-    if (formData.username.length < 3) {
-      newErrors.username = 'Логин должен содержать минимум 3 символа'
+    if (formData.username.length < 5) {
+      newErrors.username = 'Логин должен содержать минимум 5 символа'
       isValid = false
     } else {
       const isUsernameAvailable = await checkUsername(formData.username)
