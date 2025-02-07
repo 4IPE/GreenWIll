@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.GreenWill.Dto.model.User.UserDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
+import ru.GreenWill.server.mapper.LocationMapper;
 import ru.GreenWill.server.mapper.UserMapper;
 import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.model.User;
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper;
+    private final LocationMapper locationMapper;
 
 
     @Override
@@ -52,7 +54,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByPhone(String phone) {
-        return userRepository.existsByPhone(phone);
+        log.info("+"+phone);
+        boolean res = userRepository.existsByPhone("+"+phone);
+        log.info("{}",res);
+        return userRepository.existsByPhone("+"+phone);
     }
 
     @Override
@@ -97,7 +102,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.phone() != null) user.setPhone(userDto.phone());
         if (userDto.firstName() != null) user.setFirstName(userDto.firstName());
         if (userDto.lastName() != null) user.setLastName(userDto.lastName());
-        if (userDto.address() != null) user.setAddress(userDto.address());
+        if (userDto.address() != null) user.setAddress(locationMapper.toLocation(userDto.address()));
         userRepository.save(user);
     }
 

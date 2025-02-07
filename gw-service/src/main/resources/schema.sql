@@ -3,6 +3,18 @@ CREATE TABLE IF NOT EXISTS roles (
         role VARCHAR NOT NULL
         );
 
+CREATE TABLE IF NOT EXISTS locations (
+    id BIGSERIAL PRIMARY KEY,
+    city VARCHAR NOT NULL,
+    street VARCHAR NOT NULL,
+    house VARCHAR NOT NULL,
+    apartment VARCHAR,
+    floor INTEGER,
+    entrance INTEGER,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR NOT NULL UNIQUE,
@@ -12,8 +24,9 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR UNIQUE,
     first_name VARCHAR,
     last_name VARCHAR,
-    address VARCHAR,
-    FOREIGN KEY(role_id) REFERENCES roles(id)
+    location_id BIGINT,
+    FOREIGN KEY(role_id) REFERENCES roles(id),
+    FOREIGN KEY(location_id) REFERENCES locations(id)
 );
 
 

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 )
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/products/all", "/user/status", "/user/check", "/user/check-email")
+                        .requestMatchers("/login", "/register", "/products/all", "/user/status", "/user/check", "/user/check-email","/user/check-phone")
                         .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()

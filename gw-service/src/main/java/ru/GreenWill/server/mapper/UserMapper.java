@@ -6,7 +6,7 @@ import ru.GreenWill.Dto.model.User.UserDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
 import ru.GreenWill.server.model.User;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {RoleMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {RoleMapper.class,LocationMapper.class})
 
 public interface UserMapper {
 

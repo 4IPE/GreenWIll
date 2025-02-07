@@ -21,18 +21,29 @@ import { toast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FileInput } from "@/components/ui/file-input"
-import { AddressAutocomplete } from "@/components/ui/address-autocomplete"
+import { LocationForm } from "@/components/ui/location-form"
+
+interface Address {
+  city: string;
+  street: string;
+  house: string;
+  apartment: string;
+  floor: string;
+  entrance: string;
+  latitude: number | null;
+  longitude: number | null;
+}
 
 interface UserProfile {
-  username: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  address: string
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
   role: {  
-    role: string
-  }
+    role: string;
+  };
+  address?: Address;
 }
 
 interface ProductForm {
@@ -65,7 +76,6 @@ export default function Profile() {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
     role: {  
       role: ''
     }
@@ -89,6 +99,16 @@ export default function Profile() {
   const [roleUsername, setRoleUsername] = useState('')
   const [selectedRole, setSelectedRole] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [address, setAddress] = useState<Address>({
+    city: '',
+    street: '',
+    house: '',
+    apartment: '',
+    floor: '',
+    entrance: '',
+    latitude: null,
+    longitude: null
+  })
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
@@ -106,6 +126,18 @@ export default function Profile() {
             email: response.data.email,
             phone: response.data.phone
           })
+          if (response.data.address) {
+            setAddress({
+              city: response.data.address.city || '',
+              street: response.data.address.street || '',
+              house: response.data.address.house || '',
+              apartment: response.data.address.apartment || '',
+              floor: response.data.address.floor || '',
+              entrance: response.data.address.entrance || '',
+              latitude: response.data.address.latitude || null,
+              longitude: response.data.address.longitude || null
+            })
+          }
         } catch (err) {
           console.error('Failed to fetch user info:', err)
         }
@@ -164,22 +196,139 @@ export default function Profile() {
     fetchOrders()
   }, [isLoggedIn, userInfo])
 
+  // Добавим функцию форматирования телефона
+  const formatPhoneNumber = (value: string): string => {
+    // Убираем все нецифровые символы
+    const numbers = value.replace(/\D/g, '');
+    
+    // Если строка пустая, возвращаем пустую строку
+    if (!numbers) return '';
+    
+    // Добавляем + в начало, если его нет
+    if (!value.startsWith('+')) {
+      return '+' + numbers;
+    }
+    
+    return '+' + numbers;
+  };
+
+  // Обновляем handlePhoneChange
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setUserInfo({ ...userInfo, phone: formattedPhone });
+  };
+
+  // Обновляем handleSave с проверкой телефона
   const handleSave = async () => {
     try {
+      // Сначала проверяем корректность формата телефона
+      const phoneRegex = /^\+\d{11}$/; // Формат: +7XXXXXXXXXX
+      if (userInfo.phone && !phoneRegex.test(userInfo.phone)) {
+        toast({
+          title: "Ошибка",
+          description: "Неверный формат номера телефона. Должно быть 11 цифр после +",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Проверяем существование телефона до любых других действий
+      if (userInfo.phone && userInfo.phone !== initialValues.phone) {
+        try {
+          // Убираем + перед отправкой на бэкенд ТОЛЬКО для проверки
+          const phoneWithoutPlus = userInfo.phone.replace('+', '');
+          const response = await axiosConfig.get(`/api/user/check-phone?phone=${phoneWithoutPlus}`);
+          console.log('Ответ сервера при проверке телефона:', response.data);
+          
+          if (response.data) {
+            toast({
+              title: "Ошибка",
+              description: "Номер телефона уже зарегистрирован в системе",
+              variant: "destructive"
+            });
+            return;
+          }
+        } catch (err) {
+          console.error('Ошибка при проверке телефона:', err);
+          toast({
+            title: "Ошибка",
+            description: "Не удалось проверить номер телефона",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      // Проверяем адрес только после успешной проверки телефона
+      const hasStartedAddress = address.city || address.street || address.house || 
+                              address.apartment || address.floor || address.entrance;
+
+      if (hasStartedAddress) {
+        const requiredFields = [
+          { field: 'город', value: address.city },
+          { field: 'улица', value: address.street },
+          { field: 'дом', value: address.house },
+          { field: 'квартира', value: address.apartment },
+          { field: 'этаж', value: address.floor },
+          { field: 'подъезд', value: address.entrance }
+        ];
+
+        const missingFields = requiredFields
+          .filter(field => !field.value)
+          .map(field => field.field);
+
+        if (missingFields.length > 0) {
+          toast({
+            title: "Ошибка",
+            description: `Необходимо заполнить все поля адреса: ${missingFields.join(', ')}`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      // Только после всех проверок отправляем запрос на обновление
+      const updatedUserInfo = {
+        ...userInfo,
+        address: hasStartedAddress ? {
+          city: address.city,
+          street: address.street,
+          house: address.house,
+          apartment: address.apartment,
+          floor: address.floor,
+          entrance: address.entrance,
+          latitude: address.latitude || null,
+          longitude: address.longitude || null
+        } : null
+      };
+
       await axiosConfig.post(
         "/api/user/profile",
-        userInfo,
+        updatedUserInfo,
         { withCredentials: true }
-      )
-      setIsEditing(false)
+      );
       
-      // Обновляем данные после успешного сохранения
-      const response = await axiosConfig.get("/api/user/profile", { withCredentials: true })
-      setUserInfo(response.data)
+      setIsEditing(false);
+      
+      const response = await axiosConfig.get("/api/user/profile", { withCredentials: true });
+      setUserInfo(response.data);
+      if (response.data.address) {
+        setAddress(response.data.address);
+      }
+
+      toast({
+        title: "Успех",
+        description: "Профиль успешно обновлен",
+      });
     } catch (err) {
-      console.error("Ошибка при обновлении профиля:", err)
+      console.error("Ошибка при обновлении профиля:", err);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить профиль",
+        variant: "destructive"
+      });
     }
-  }
+  };
 
   const sortedActiveOrders = useMemo(() => 
     [...activeOrders].sort((a, b) => b.id - a.id), 
@@ -498,25 +647,27 @@ export default function Profile() {
                       </div>
 
                       <div>
-                        <Label htmlFor="phone" className="flex items-center gap-2">
+                        <Label 
+                          htmlFor="phone" 
+                          className="flex items-center gap-2"
+                        >
                           <Phone className="h-4 w-4" /> Телефон
                         </Label>
                         <Input
                           id="phone"
                           value={userInfo.phone}
-                          onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
-                          placeholder="+7 (999) 999-99-99"
+                          onChange={handlePhoneChange}
+                          placeholder="+7XXXXXXXXXX"
                           readOnly={!!initialValues.phone}
                           disabled={!!initialValues.phone}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="address">Адрес доставки</Label>
-                        <AddressAutocomplete
-                          value={userInfo.address || ''}
-                          onChange={(newAddress) => setUserInfo({ ...userInfo, address: newAddress })}
-                          placeholder="Введите адрес доставки"
+                        <Label>Адрес доставки</Label>
+                        <LocationForm
+                          value={address}
+                          onChange={(newAddress: Address) => setAddress(newAddress)}
                         />
                       </div>
 
@@ -569,7 +720,17 @@ export default function Profile() {
                           <MapPin className="h-4 w-4" />
                         </div>
                         <p className="-mt-0.5">
-                          <strong>Адрес:</strong> {userInfo.address || "Не указано"}
+                          <strong>Адрес:</strong>{" "}
+                          {userInfo.address ? (
+                            <>
+                              г. {userInfo.address.city}, 
+                              ул. {userInfo.address.street}, 
+                              д. {userInfo.address.house}
+                              {userInfo.address.apartment && `, кв. ${userInfo.address.apartment}`}
+                              {userInfo.address.floor && `, этаж ${userInfo.address.floor}`}
+                              {userInfo.address.entrance && `, подъезд ${userInfo.address.entrance}`}
+                            </>
+                          ) : "Не указано"}
                         </p>
                       </div>
                       <Button onClick={() => setIsEditing(true)} className="flex items-center gap-2">
