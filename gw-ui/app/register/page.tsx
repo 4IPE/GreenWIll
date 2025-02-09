@@ -147,10 +147,12 @@ export default function Register() {
     
     if (await validateForm()) {
       try {
-        // Изменяем способ отправки параметров
+        // Сначала показываем форму верификации
+        setShowVerification(true)
+        
+        // Затем отправляем запрос на создание кода
         await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
         
-        setShowVerification(true)
       } catch (err) {
         const error = err as RegisterError
         toast({

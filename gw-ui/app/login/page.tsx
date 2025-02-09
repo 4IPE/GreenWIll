@@ -69,11 +69,13 @@ export default function Login() {
       }
 
       setUserEmail(email)
+      
+      // Сначала показываем форму верификации
+      setShowVerification(true)
 
-      // Отправляем код на email пользователя
+      // Затем отправляем код на email пользователя
       await axiosConfig.post(`/api/create?username=${username}&email=${email}`)
       
-      setShowVerification(true)
     } catch (err: unknown) {
       const error = err as ApiError
       setError(error.response?.data?.message || 'Login failed. Please try again.')
