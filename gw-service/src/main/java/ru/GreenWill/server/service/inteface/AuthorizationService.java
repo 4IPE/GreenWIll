@@ -10,10 +10,17 @@ public interface AuthorizationService {
 
 
     @Transactional
-    void singUp(UserSingUpDto request, HttpServletResponse response);
+    void singUp(UserSingUpDto request);
 
     @Transactional
-    void singIn(UserSingInDto request, HttpServletResponse response);
+    void singIn(UserSingInDto request);
+
 
     void logout(HttpServletResponse response);
+
+
+    void createAndSendKeyAuthForUser(String username, String email);
+
+
+    boolean checkVerAccount(String username, String key, HttpServletResponse response);
 }

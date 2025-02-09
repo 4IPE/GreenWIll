@@ -43,7 +43,16 @@ interface UserProfile {
   role: {  
     role: string;
   };
-  address?: Address;
+  address: {
+    city: string;
+    street: string;
+    house: string;
+    apartment: string;
+    floor: string;
+    entrance: string;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
 }
 
 interface ProductForm {
@@ -78,7 +87,8 @@ export default function Profile() {
     phone: '',
     role: {  
       role: ''
-    }
+    },
+    address: null
   })
   const [activeOrders, setActiveOrders] = useState<OrderOutDto[]>([])
   const [orderHistory, setOrderHistory] = useState<OrderOutDto[]>([])
@@ -136,6 +146,17 @@ export default function Profile() {
               entrance: response.data.address.entrance || '',
               latitude: response.data.address.latitude || null,
               longitude: response.data.address.longitude || null
+            })
+          } else {
+            setAddress({
+              city: '',
+              street: '',
+              house: '',
+              apartment: '',
+              floor: '',
+              entrance: '',
+              latitude: null,
+              longitude: null
             })
           }
         } catch (err) {
@@ -259,7 +280,7 @@ export default function Profile() {
         }
       }
 
-      // Проверяем адрес только после успешной проверки телефона
+      // Проверяем адрес
       const hasStartedAddress = address.city || address.street || address.house || 
                               address.apartment || address.floor || address.entrance;
 
@@ -287,19 +308,10 @@ export default function Profile() {
         }
       }
 
-      // Только после всех проверок отправляем запрос на обновление
+      // Отправляем обновленные данные
       const updatedUserInfo = {
         ...userInfo,
-        address: hasStartedAddress ? {
-          city: address.city,
-          street: address.street,
-          house: address.house,
-          apartment: address.apartment,
-          floor: address.floor,
-          entrance: address.entrance,
-          latitude: address.latitude || null,
-          longitude: address.longitude || null
-        } : null
+        address: hasStartedAddress ? address : null
       };
 
       await axiosConfig.post(
@@ -667,7 +679,13 @@ export default function Profile() {
                         <Label>Адрес доставки</Label>
                         <LocationForm
                           value={address}
-                          onChange={(newAddress: Address) => setAddress(newAddress)}
+                          onChange={(newAddress: Address) => {
+                            setAddress(newAddress)
+                            setUserInfo(prev => ({
+                              ...prev,
+                              address: newAddress
+                            }))
+                          }}
                         />
                       </div>
 

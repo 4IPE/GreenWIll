@@ -20,7 +20,6 @@
     <modules>
         <module>gw-dto</module>
         <module>gw-service</module>
-        <module>gw-reddis</module>
         <module>gw-client</module>
     </modules>
 

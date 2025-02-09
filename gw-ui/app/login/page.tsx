@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from 'next/navigation'
 import axiosConfig from '@/config/axiosConfig'
+import { VerificationCodeModal } from "@/components/verification-code-modal"
+import { toast } from "@/components/ui/use-toast"
 
 
 interface ApiError {
@@ -28,6 +30,8 @@ export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [showVerification, setShowVerification] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,14 +40,40 @@ export default function Login() {
     setError(null)
 
     try {
-      const response = await axiosConfig.post('/api/login', {
-        username,
-        password,
-      })
-      console.log('Login successful:', response.data)
-      if (typeof window !== 'undefined') {
-        router.push('/')
+      // Сначала проверяем существование пользователя
+      const checkResponse = await axiosConfig.get(`/api/user/check?username=${username}`)
+      
+      if (!checkResponse.data) {
+        toast({
+          title: "Ошибка",
+          description: "Пользователь не найден. Пожалуйста, зарегистрируйтесь",
+          variant: "destructive",
+        })
+        router.push('/register')
+        return
       }
+
+      // Получаем email пользователя
+      const userResponse = await axiosConfig.get<{ email: string }>(`/api/user/get`, {
+        params: { username }
+      })
+      const { email } = userResponse.data
+
+      if (!email) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить email пользователя",
+          variant: "destructive",
+        })
+        return
+      }
+
+      setUserEmail(email)
+
+      // Отправляем код на email пользователя
+      await axiosConfig.post(`/api/create?username=${username}&email=${email}`)
+      
+      setShowVerification(true)
     } catch (err: unknown) {
       const error = err as ApiError
       setError(error.response?.data?.message || 'Login failed. Please try again.')
@@ -52,72 +82,131 @@ export default function Login() {
     }
   }
 
+  const handleVerificationSubmit = async (code: string) => {
+    try {
+      const checkResponse = await axiosConfig.post(`/api/check?username=${username}&key=${code}`)
+
+      if (checkResponse.status === 200) {
+        // Если код верный, выполняем вход
+        await axiosConfig.post('/api/login', {
+          username,
+          password,
+        })
+        
+        router.push('/')
+      }
+    } catch (err) {
+      const error = err as ApiError
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Неверный код подтверждения",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleResendCode = async () => {
+    try {
+      // Получаем email пользователя перед повторной отправкой
+      const userResponse = await axiosConfig.get<{ email: string }>(`/api/user/get`, {
+        params: { username }
+      })
+      const { email } = userResponse.data
+      
+      setUserEmail(email)
+
+      await axiosConfig.post(`/api/create?username=${username}&email=${email}`)
+      
+      toast({
+        title: "Успех",
+        description: "Новый код отправлен на ваш email",
+      })
+    } catch (err) {
+      const error = err as ApiError
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Не удалось отправить новый код",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      <div className="relative w-full md:w-1/2 h-48 md:h-screen overflow-hidden bg-black">
-        <Image
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-31 17.23.08 - A breathtaking 4K landscape featuring a dense green forest with tall trees, majestic mountains in the background, a clear blue sky, and a serene river-0yLCMiSFg7mfT9tZNMMDDVfxPv3Skn.png"
-          alt="Login"
-          fill
-          priority
-          className="object-cover opacity-80"
-        />
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+    <>
+      <div className="min-h-screen flex flex-col md:flex-row">
+        <div className="relative w-full md:w-1/2 h-48 md:h-screen overflow-hidden bg-black">
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-31 17.23.08 - A breathtaking 4K landscape featuring a dense green forest with tall trees, majestic mountains in the background, a clear blue sky, and a serene river-0yLCMiSFg7mfT9tZNMMDDVfxPv3Skn.png"
+            alt="Login"
+            fill
+            priority
+            className="object-cover opacity-80"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center"
+            >
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">GreenWill</h1>
+              <p className="text-xl text-white/90">Здоровая еда для здоровой жизни</p>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Правая секция с формой */}
+        <div className="w-full md:w-1/2 flex items-center justify-center p-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-md"
           >
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">GreenWill</h1>
-            <p className="text-xl text-white/90">Здоровая еда для здоровой жизни</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Вход в аккаунт</CardTitle>
+                <CardDescription>
+                  Войдите в свой аккаунт для доступа к заказам
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Имя пользователя</Label>
+                    <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Пароль</Label>
+                    <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  </div>
+                  {error && <p className="text-red-500">{error}</p>}
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Вход..." : "Войти"}
+                  </Button>
+                </form>
+                <div className="mt-4 text-center text-sm">
+                  <p className="text-muted-foreground">
+                    Нет аккаунта?{" "}
+                    <Link href="/register" className="text-primary hover:underline">
+                      Зарегистрироваться
+                    </Link>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </div>
-
-      {/* Правая секция с формой */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Вход в аккаунт</CardTitle>
-              <CardDescription>
-                Войдите в свой аккаунт для доступа к заказам
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Имя пользователя</Label>
-                  <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Пароль</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-                {error && <p className="text-red-500">{error}</p>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Вход..." : "Войти"}
-                </Button>
-              </form>
-              <div className="mt-4 text-center text-sm">
-                <p className="text-muted-foreground">
-                  Нет аккаунта?{" "}
-                  <Link href="/register" className="text-primary hover:underline">
-                    Зарегистрироваться
-                  </Link>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    </div>
+      
+      <VerificationCodeModal
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        onSubmit={handleVerificationSubmit}
+        onResend={handleResendCode}
+        email={userEmail}
+      />
+    </>
   )
 }
 

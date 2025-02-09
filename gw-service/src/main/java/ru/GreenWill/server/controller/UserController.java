@@ -23,9 +23,9 @@ public class UserController {
     private final RoleService roleService;
 
     @GetMapping("/user/get")
-    public ResponseEntity<?> getUserFromToken(HttpServletRequest request) {
+    public ResponseEntity<?> getUserFromUsername(@RequestParam String username) {
 
-        return ResponseEntity.ok(userMapper.toUserOutDto(userService.getUserWithCookie(request)));
+        return ResponseEntity.ok(userMapper.toUserEmail(userService.getUserByUsername(username)));
     }
 
     @GetMapping("/user/status")
