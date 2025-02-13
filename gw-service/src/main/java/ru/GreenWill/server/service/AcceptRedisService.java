@@ -1,16 +1,11 @@
 package ru.GreenWill.server.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -21,34 +16,33 @@ public class AcceptRedisService {
 
     private static final String MANAGER_LOAD_KEY = "key-auth";
 
-    public void saveAcceptedCodeAuth(String key, String username) {
+    public void saveAcceptedCodeAuth(String key, String val) {
         try {
-            redisTemplate.opsForHash().put(MANAGER_LOAD_KEY, username, key);
+            redisTemplate.opsForHash().put(MANAGER_LOAD_KEY, val, key);
             redisTemplate.expire(MANAGER_LOAD_KEY, Duration.ofMinutes(10));
-            log.info("Код сохранен для пользователя: {}", username);
+            log.info("Код сохранен для пользователя: {}", val);
         } catch (Exception e) {
             log.error("Ошибка при сохранении кода: {}", e.getMessage(), e);
             throw new RuntimeException("Ошибка при сохранении кода подтверждения", e);
         }
     }
 
-    public boolean isAcceptedKeyValid(String key, String username) {
+    public boolean isAcceptedKeyValid(String key, String val) {
         try {
-            Object storedKey = redisTemplate.opsForHash().get(MANAGER_LOAD_KEY, username);
-            
+            Object storedKey = redisTemplate.opsForHash().get(MANAGER_LOAD_KEY, val);
+
             if (storedKey == null) {
-                log.warn("Код не найден для пользователя: {}", username);
+                log.warn("Код не найден для пользователя: {}", val);
                 return false;
             }
 
             boolean isValid = key.equals(storedKey.toString());
-            
+
             if (!isValid) {
-                log.warn("Код не совпадает для пользователя: {}", username);
+                log.warn("Код не совпадает для пользователя: {}", val);
             } else {
-                log.info("Код успешно подтвержден для пользователя: {}", username);
-                // Удаляем использованный код
-                redisTemplate.opsForHash().delete(MANAGER_LOAD_KEY, username);
+                log.info("Код успешно подтвержден для пользователя: {}", val);
+                redisTemplate.opsForHash().delete(MANAGER_LOAD_KEY, val);
             }
 
             return isValid;

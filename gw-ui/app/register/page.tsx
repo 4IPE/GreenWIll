@@ -14,8 +14,10 @@ import axiosConfig from '@/config/axiosConfig'
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { VerificationCodeModal } from "@/components/verification-code-modal"
+import { InvisibleSmartCaptcha } from "@/components/ui/invisible-smart-captcha"
+import { CheckboxWithLabel } from "@/components/ui/checkbox-with-label"
 
-// Добавьте эту строку для отключения статической генерации
+
 export const dynamic = 'force-dynamic'
 export const runtime = 'edge'
 
@@ -43,6 +45,9 @@ export default function Register() {
   })
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [showVerification, setShowVerification] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string>('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [termsError, setTermsError] = useState('')
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -138,6 +143,13 @@ export default function Register() {
       isValid = false
     }
 
+    if (!termsAccepted) {
+      setTermsError('Необходимо принять условия использования')
+      isValid = false
+    } else {
+      setTermsError('')
+    }
+
     setErrors(newErrors)
     return isValid
   }
@@ -145,22 +157,21 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (await validateForm()) {
-      try {
-        // Сначала показываем форму верификации
-        setShowVerification(true)
-        
-        // Затем отправляем запрос на создание кода
-        await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
-        
-      } catch (err) {
-        const error = err as RegisterError
-        toast({
-          title: "Ошибка",
-          description: error.response?.data?.message || "Произошла ошибка при регистрации",
-          variant: "destructive",
-        })
-      }
+    if (!await validateForm()) {
+      return
+    }
+
+    try {
+      await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
+      
+      setShowVerification(true)
+    } catch (err) {
+      const error = err as RegisterError
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Ошибка при отправке кода подтверждения",
+        variant: "destructive",
+      })
     }
   }
 
@@ -169,24 +180,28 @@ export default function Register() {
       const checkResponse = await axiosConfig.post(`/api/check?username=${formData.username}&key=${code}`)
 
       if (checkResponse.status === 200) {
-        await axiosConfig.post('/api/register', {
+        const registerResponse = await axiosConfig.post('/api/register', {
           username: formData.username,
           email: formData.email,
-          password: formData.password
-        })
-        
-        // Сначала выполняем вход
-        await axiosConfig.post('/api/login', {
-          username: formData.username,
           password: formData.password,
+          termsAccepted: termsAccepted,
+          captchaToken: captchaToken
         })
-        
-        toast({
-          title: "Успех",
-          description: "Регистрация успешно завершена",
-        })
-        
-        router.push('/') // Редирект на главную
+
+        if (registerResponse.status === 200) {
+          // 6. После успешной регистрации выполняем вход
+          await axiosConfig.post('/api/login', {
+            username: formData.username,
+            password: formData.password,
+          })
+          
+          toast({
+            title: "Успех",
+            description: "Регистрация успешно завершена",
+          })
+          
+          router.push('/') // Редирект на главную
+        }
       }
     } catch (err) {
       const error = err as RegisterError
@@ -200,7 +215,6 @@ export default function Register() {
 
   const handleResendCode = async () => {
     try {
-      // Здесь тоже изменяем способ отправки параметров
       await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
       
       toast({
@@ -225,6 +239,10 @@ export default function Register() {
     if (name === 'password') {
       setPasswordStrength(checkPasswordStrength(value))
     }
+  }
+
+  const handleCaptchaSuccess = (token: string) => {
+    setCaptchaToken(token)
   }
 
   return (
@@ -329,6 +347,14 @@ export default function Register() {
                       <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>
                     )}
                   </div>
+
+                  <CheckboxWithLabel
+                    checked={termsAccepted}
+                    onCheckedChange={setTermsAccepted}
+                    error={termsError}
+                  />
+
+                  <InvisibleSmartCaptcha onSuccess={handleCaptchaSuccess} />
 
                   <Button type="submit" className="w-full">
                     Зарегистрироваться

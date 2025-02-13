@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation'
 import axiosConfig from '@/config/axiosConfig'
 import { VerificationCodeModal } from "@/components/verification-code-modal"
 import { toast } from "@/components/ui/use-toast"
+import { ForgotPasswordModal } from "@/components/forgot-password-modal"
+import { SmartCaptcha } from "@/components/ui/smart-captcha"
 
 
 interface ApiError {
@@ -32,6 +34,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null)
   const [showVerification, setShowVerification] = useState(false)
   const [userEmail, setUserEmail] = useState('')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,45 +43,19 @@ export default function Login() {
     setError(null)
 
     try {
-      // Сначала проверяем существование пользователя
-      const checkResponse = await axiosConfig.get(`/api/user/check?username=${username}`)
-      
-      if (!checkResponse.data) {
-        toast({
-          title: "Ошибка",
-          description: "Пользователь не найден. Пожалуйста, зарегистрируйтесь",
-          variant: "destructive",
-        })
-        router.push('/register')
-        return
-      }
-
-      // Получаем email пользователя
-      const userResponse = await axiosConfig.get<{ email: string }>(`/api/user/get`, {
-        params: { username }
+      await axiosConfig.post('/api/login', {
+        username,
+        password
       })
-      const { email } = userResponse.data
-
-      if (!email) {
-        toast({
-          title: "Ошибка",
-          description: "Не удалось получить email пользователя",
-          variant: "destructive",
-        })
-        return
-      }
-
-      setUserEmail(email)
       
-      // Сначала показываем форму верификации
       setShowVerification(true)
-
-      // Затем отправляем код на email пользователя
-      await axiosConfig.post(`/api/create?username=${username}&email=${email}`)
-      
-    } catch (err: unknown) {
+    } catch (err) {
       const error = err as ApiError
-      setError(error.response?.data?.message || 'Login failed. Please try again.')
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Неверный логин или пароль",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -86,24 +63,15 @@ export default function Login() {
 
   const handleVerificationSubmit = async (code: string) => {
     try {
-      const checkResponse = await axiosConfig.post(`/api/check?username=${username}&key=${code}`)
-
-      if (checkResponse.status === 200) {
-        // Если код верный, выполняем вход
-        await axiosConfig.post('/api/login', {
-          username,
-          password,
-        })
-        
+        await axiosConfig.post(`/api/login/verify?username=${username}&key=${code}`)
         router.push('/')
-      }
     } catch (err) {
-      const error = err as ApiError
-      toast({
-        title: "Ошибка",
-        description: error.response?.data?.message || "Неверный код подтверждения",
-        variant: "destructive",
-      })
+        const error = err as ApiError
+        toast({
+            title: "Ошибка",
+            description: error.response?.data?.message || "Неверный код подтверждения",
+            variant: "destructive",
+        })
     }
   }
 
@@ -183,11 +151,23 @@ export default function Login() {
                     <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                   </div>
                   {error && <p className="text-red-500">{error}</p>}
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Вход..." : "Войти"}
-                  </Button>
+                  <SmartCaptcha />
+                  <div className="flex justify-between items-center">
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Вход..." : "Войти"}
+                    </Button>
+                  </div>
                 </form>
                 <div className="mt-4 text-center text-sm">
+                  <Button
+                    variant="link"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    Забыли пароль?
+                  </Button>
+                </div>
+                <div className="mt-2 text-center text-sm">
                   <p className="text-muted-foreground">
                     Нет аккаунта?{" "}
                     <Link href="/register" className="text-primary hover:underline">
@@ -207,6 +187,18 @@ export default function Login() {
         onSubmit={handleVerificationSubmit}
         onResend={handleResendCode}
         email={userEmail}
+      />
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onPasswordReset={() => {
+          setShowForgotPassword(false)
+          toast({
+            title: "Успех",
+            description: "Пароль успешно изменен. Войдите с новым паролем",
+          })
+        }}
       />
     </>
   )

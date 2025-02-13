@@ -26,22 +26,14 @@ import java.util.List;
 public class JwtTokenProvider {
 
 
-    private String secretKey;
 
     private final static long validityInMilliseconds = 3600000; // 1h
-
+    private final static long validityTimeForChangePassword = 600000;
     private final Key key;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
-        if (secretKey == null || secretKey.isEmpty()) {
-            throw new IllegalArgumentException("Секретный ключ не может быть пустым!");
-        }
-        if (secretKey.length() < 32) {
-            SecretKey generatedKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-            secretKey = Base64.getEncoder().encodeToString(generatedKey.getEncoded());
-            log.info(secretKey);
-        }
-
+    public JwtTokenProvider() {
+        SecretKey generatedKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        String secretKey = Base64.getEncoder().encodeToString(generatedKey.getEncoded());
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -50,6 +42,18 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key)
+                .compact();
+    }
+    public String createTokenWithChangePassword(String email) {
+        Claims claims = Jwts.claims().setSubject(email);
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + validityTimeForChangePassword);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -68,9 +72,9 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
     }
 
-    public String getUsername(String token) {
+    public String getVal(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key) // Устанавливаем ключ
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -80,7 +84,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key) // Устанавливаем ключ
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
             return true;
@@ -98,6 +102,17 @@ public class JwtTokenProvider {
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
                 if (cookie.getName().equals("token")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String resolveTokenForSmallVal(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (cookie.getName().equals("small")) {
                     return cookie.getValue();
                 }
             }

@@ -23,5 +23,6 @@ public record UserSingUpDto(@NotNull
                             @NotEmpty
                             @NotBlank
                             @Size(max = 255, message = "Длина пароля должна быть не более 255 символов")
-                            String password) {
+                            String password,
+                            boolean termsAccepted) {
 }

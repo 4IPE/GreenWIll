@@ -72,7 +72,28 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 
---
---CREATE TABLE IF NOT EXISTS history (
---        id BIGSERIAL PRIMARY KEY
---        );
+CREATE TABLE IF NOT EXISTS user_consents (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    consent_type VARCHAR(50) NOT NULL,
+    accepted_at TIMESTAMP NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    user_agent VARCHAR(500),
+    consent_version VARCHAR(10) NOT NULL,
+
+    CONSTRAINT fk_user_consents_user 
+        FOREIGN KEY (user_id) 
+        REFERENCES users(id) 
+        ON DELETE CASCADE,
+
+    CONSTRAINT uk_user_consent_type 
+        UNIQUE (user_id, consent_type)
+);
+
+-- Индекс для поиска по дате принятия
+CREATE INDEX IF NOT EXISTS idx_user_consents_accepted_at 
+    ON user_consents(accepted_at);
+
+-- Индекс для поиска по IP адресу
+CREATE INDEX IF NOT EXISTS idx_user_consents_ip_address 
+    ON user_consents(ip_address);

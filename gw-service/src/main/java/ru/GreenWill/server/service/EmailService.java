@@ -126,29 +126,5 @@ public class EmailService {
         }
     }
 
-    public void sendVerificationCode(String to, String code) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setFrom("your-email@example.com");
-            helper.setTo(to);
-            helper.setSubject("Код подтверждения");
-            
-            // Читаем HTML шаблон
-            String htmlTemplate = new String(Files.readAllBytes(
-                Paths.get(getClass().getResource("/templates/verification-email.html").toURI())),
-                StandardCharsets.UTF_8
-            );
-            
-            // Заменяем плейсхолдер на код
-            String htmlContent = htmlTemplate.replace("{code}", code);
-            
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Error sending email", e);
-        }
-    }
+
 }
