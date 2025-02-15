@@ -1,11 +1,27 @@
 import { formatCurrency, formatOrderStatus } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { OrderOutDto } from '@/types/order'
+import { LocationDto } from '@/types/location'
 
 interface OrderDetailsProps {
   order: OrderOutDto;
   showDeliveryInfo?: boolean;
   showCookingInfo?: boolean;
+}
+
+function formatAddress(address: LocationDto | null): string {
+  if (!address) return 'Адрес не указан';
+  
+  const parts = [
+    address.city,
+    address.street,
+    `д. ${address.house}`,
+    address.apartment ? `кв. ${address.apartment}` : null,
+    address.floor ? `этаж ${address.floor}` : null,
+    address.entrance ? `подъезд ${address.entrance}` : null
+  ].filter(Boolean);
+  
+  return parts.join(', ');
 }
 
 export function OrderDetails({ order, showDeliveryInfo, showCookingInfo }: OrderDetailsProps) {
@@ -26,7 +42,7 @@ export function OrderDetails({ order, showDeliveryInfo, showCookingInfo }: Order
         {showDeliveryInfo && (
           <div className="space-y-2 border-t pt-4">
             <h3 className="font-semibold">Информация о доставке:</h3>
-            <p><strong>Адрес:</strong> {order.user.address}</p>
+            <p><strong>Адрес:</strong> {formatAddress(order.user.address)}</p>
             <p><strong>Телефон:</strong> {order.user.phone}</p>
           </div>
         )}

@@ -27,7 +27,6 @@ public interface UserService {
 
     boolean existsByPhone(String phone);
 
-    UserDetailsService userDetailsService();
 
     @Transactional
     void save(User user);

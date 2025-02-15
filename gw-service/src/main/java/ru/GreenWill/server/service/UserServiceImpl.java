@@ -68,10 +68,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByPhone("+" + phone);
     }
 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return this::getUserByUsername;
-    }
 
     @Override
     public void save(User user) {

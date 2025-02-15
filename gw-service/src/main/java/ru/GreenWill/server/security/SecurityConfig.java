@@ -17,10 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.GreenWill.server.security.jwt.JwtAuthorizationFilter;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import ru.GreenWill.server.repository.UserRepository;
+import ru.GreenWill.server.service.AuthenticationService;
 
 @Configuration
 @EnableWebSecurity
@@ -29,18 +26,12 @@ import ru.GreenWill.server.repository.UserRepository;
 public class SecurityConfig {
 
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
-    private final UserRepository userRepository;
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-    }
+    private final AuthenticationService authenticationService;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(authenticationService::loadUserByUsername);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
@@ -54,9 +45,9 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/login","/register", "/products/all", "/user/status",
-                                "/user/check", "/user/check-email","/user/check-phone",
-                                "/login/verify","/user/get","/req/password","/edit/accepted","/create","/check")
+                        .requestMatchers("/login","/login/verify","/register", "/products/all", "/user/status",
+                                "/user/check", "/user/check-email", "/user/check-phone",
+                                "/create", "/check", "/user/get", "/req/password", "/edit/accepted")
                         .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
