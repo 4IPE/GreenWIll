@@ -20,6 +20,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Контроллер для управления продуктами.
+ * 
+ * <p>Обрабатывает операции с продуктами:</p>
+ * <ul>
+ *     <li>Получение списка всех продуктов</li>
+ *     <li>Добавление новых продуктов (только для администраторов)</li>
+ * </ul>
+ *
+ * @author Даниил Рогозников
+ * @version 1.0
+ */
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -27,6 +39,12 @@ import java.util.UUID;
 public class ProductController {
     private final ProductService productService;
 
+    /**
+     * Получает список всех доступных продуктов.
+     * Этот метод доступен всем пользователям.
+     *
+     * @return список продуктов
+     */
     @GetMapping("/products/all")
     public ResponseEntity<List<ProductOutDto>> getAll() {
         List<ProductOutDto> products = productService.getAll();
@@ -34,6 +52,13 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    /**
+     * Сохраняет новый продукт в систему.
+     * Доступно только для администраторов.
+     *
+     * @param productDtoSave данные нового продукта
+     * @return статус операции
+     */
     @PostMapping("/admin/add")
     public ResponseEntity<?> saveProducts(@RequestBody ProductDtoSave productDtoSave) {
         productService.saveProduct(productDtoSave);

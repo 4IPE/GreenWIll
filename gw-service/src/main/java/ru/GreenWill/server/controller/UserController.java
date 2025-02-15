@@ -13,7 +13,21 @@ import ru.GreenWill.server.model.User;
 import ru.GreenWill.server.service.inteface.RoleService;
 import ru.GreenWill.server.service.inteface.UserService;
 
-
+/**
+ * Контроллер для управления пользователями.
+ * 
+ * <p>Обрабатывает операции с пользователями:</p>
+ * <ul>
+ *     <li>Получение информации о пользователе</li>
+ *     <li>Обновление профиля</li>
+ *     <li>Проверка существования пользователей</li>
+ *     <li>Управление ролями (для администраторов)</li>
+ *     <li>Восстановление пароля</li>
+ * </ul>
+ *
+ * @author Даниил Рогозников
+ * @version 1.0
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -22,23 +36,48 @@ public class UserController {
     private final UserMapper userMapper;
     private final RoleService roleService;
 
+    /**
+     * Получает информацию о пользователе по имени.
+     *
+     * @param username имя пользователя
+     * @return данные пользователя
+     */
     @GetMapping("/user/get")
     public ResponseEntity<?> getUserFromUsername(@RequestParam String username) {
 
         return ResponseEntity.ok(userMapper.toUserEmail(userService.getUserByUsername(username)));
     }
 
+    /**
+     * Проверяет статус аутентификации пользователя.
+     *
+     * @param request HTTP-запрос с куки
+     * @return статус аутентификации
+     */
     @GetMapping("/user/status")
     public ResponseEntity<?> getUserStatus(HttpServletRequest request) {
         return userService.validCookies(request);
     }
 
+    /**
+     * Получает профиль текущего пользователя.
+     *
+     * @param request HTTP-запрос для идентификации пользователя
+     * @return данные профиля
+     */
     @GetMapping("/user/profile")
     public ResponseEntity<UserOutDto> getUserProfile(HttpServletRequest request) {
         User user = userService.getUserWithCookie(request);
         return ResponseEntity.ok(userMapper.toUserOutDto(user));
     }
 
+    /**
+     * Обновляет профиль пользователя.
+     *
+     * @param userDto новые данные профиля
+     * @param request HTTP-запрос для идентификации пользователя
+     * @return статус обновления
+     */
     @PostMapping("/user/profile")
     public ResponseEntity<?> updateUserProfile(@RequestBody UserOutDto userDto, HttpServletRequest request) {
         userService.updateUserProfile(userDto, request);
@@ -63,6 +102,13 @@ public class UserController {
         return ResponseEntity.ok(userService.existsByPhone(phone));
     }
 
+    /**
+     * Изменяет роль пользователя (только для администраторов).
+     *
+     * @param username имя пользователя
+     * @param roleName новая роль
+     * @return статус изменения роли
+     */
     @GetMapping("/admin/edit/role")
     public ResponseEntity<?> editRoleUser(@RequestParam String username, @RequestParam String roleName) {
         roleService.updateRoleWithUser(username, roleName);
