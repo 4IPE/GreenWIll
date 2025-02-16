@@ -22,6 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { FileInput } from "@/components/ui/file-input"
 import { LocationForm } from "@/components/ui/location-form"
+import { CourierLocationMap } from '@/components/courier-location-map'
+import { useGeolocation } from '@/hooks/useGeolocation'
 
 interface Address {
   city: string;
@@ -119,6 +121,7 @@ export default function Profile() {
     latitude: null,
     longitude: null
   })
+  const { location, isLoading: isLoadingLocation, updateLocation } = useGeolocation()
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
@@ -430,10 +433,16 @@ export default function Profile() {
       await axiosConfig.patch('/api/order/status/delivered', null, {
         params: { orderId }
       })
-      const response = await axiosConfig.get('/api/orders/delivery')
-      setDeliveryOrders(response.data)
+      // Обновляем только список заказов в доставке
+      const response = await axiosConfig.get('/api/orders/running')
+      setRunningOrders(response.data)
     } catch (err) {
       console.error('Failed to mark order as delivered:', err)
+      toast({
+        title: "Ошибка",
+        description: "Не удалось отметить заказ как доставленный",
+        variant: "destructive"
+      })
     }
   }
 
@@ -875,26 +884,17 @@ export default function Profile() {
                       <CardTitle>Заказы на доставку</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {deliveryOrders.map((order) => (
-                          <motion.div
-                            key={order.id}
-                            className="p-4 border rounded"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                          >
-                            <OrderDetails 
-                              order={order} 
-                              showDeliveryInfo={true}
-                            />
-                            <div className="flex gap-2 mt-4">
-                              <Button onClick={() => handleTakeOrder(order.id)}>
-                                Взять в доставку
-                              </Button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
+                      <CourierLocationMap
+                        courierLocation={location}
+                        orders={deliveryOrders}
+                        onOrderSelect={(order) => {
+                          if (order.status === 'GOES') {
+                            handleTakeOrder(order.id)
+                          }
+                        }}
+                        onUpdateLocation={updateLocation}
+                        isLoadingLocation={isLoadingLocation}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
