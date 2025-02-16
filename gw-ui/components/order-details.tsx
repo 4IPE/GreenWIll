@@ -1,12 +1,31 @@
+'use client'
+
 import { formatCurrency, formatOrderStatus } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { OrderOutDto } from '@/types/order'
 import { LocationDto } from '@/types/location'
+import { Copy, MapPin } from 'lucide-react'
+import { toast } from './ui/use-toast'
+import { Button } from './ui/button'
 
 interface OrderDetailsProps {
   order: OrderOutDto;
   showDeliveryInfo?: boolean;
   showCookingInfo?: boolean;
+}
+
+function getYandexMapsUrl(address: LocationDto | null): string {
+  if (!address) return '';
+  
+  // Формируем полный адрес для поиска
+  const fullAddress = [
+    address.city,
+    address.street,
+    `дом ${address.house}`,
+    address.apartment ? `квартира ${address.apartment}` : null,
+  ].filter(Boolean).join(', ');
+  
+  return `https://yandex.ru/maps/?text=${encodeURIComponent(fullAddress)}`;
 }
 
 function formatAddress(address: LocationDto | null): string {
@@ -25,6 +44,16 @@ function formatAddress(address: LocationDto | null): string {
 }
 
 export function OrderDetails({ order, showDeliveryInfo, showCookingInfo }: OrderDetailsProps) {
+  const handleCopyAddress = () => {
+    const address = formatAddress(order.address);
+    navigator.clipboard.writeText(address);
+    toast({
+      description: "Адрес скопирован в буфер обмена",
+    });
+  };
+
+  const yandexMapsUrl = getYandexMapsUrl(order.address);
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -42,7 +71,26 @@ export function OrderDetails({ order, showDeliveryInfo, showCookingInfo }: Order
         {showDeliveryInfo && (
           <div className="space-y-2 border-t pt-4">
             <h3 className="font-semibold">Информация о доставке:</h3>
-            <p><strong>Адрес:</strong> {formatAddress(order.user.address)}</p>
+            <div className="flex items-center gap-2">
+              <strong>Адрес:</strong>
+              <a 
+                href={yandexMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center gap-2"
+              >
+                {formatAddress(order.address)}
+                <MapPin className="h-4 w-4" />
+              </a>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyAddress}
+                className="h-8 w-8"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
             <p><strong>Телефон:</strong> {order.user.phone}</p>
           </div>
         )}

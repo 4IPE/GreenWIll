@@ -52,30 +52,30 @@ public class OrderController {
     public ResponseEntity<List<OrderOutDto>> getDeliveryOrders(HttpServletRequest request) {
         return ResponseEntity.ok(orderService.getOrdersByStatus(request, Status.GOES));
     }
-
+    //Принят
     @PatchMapping("/order/status/accept")
     public ResponseEntity<?> acceptOrder(HttpServletRequest request, @RequestParam Long orderId) {
         orderService.setStatusOrderWithCook(request, orderId, Status.ACTIVITY.name());
         return ResponseEntity.ok().body("Order accepted");
     }
-
+    //Готов
     @PatchMapping("/order/status/ready")
     public ResponseEntity<?> readyOrder(HttpServletRequest request, @RequestParam Long orderId) {
         orderService.setStatusOrderWithCook(request, orderId, Status.GOES.name());
         return ResponseEntity.ok().body("Order ready for delivery");
     }
-
+    //Отправлен в доставку
     @PatchMapping("/order/status/delivered")
     public ResponseEntity<?> deliveredOrder(HttpServletRequest request, @RequestParam Long orderId) {
         orderService.setStatusOrderWithCurier(request, orderId, Status.COMPLETED.name());
         return ResponseEntity.ok().body("Order delivered");
     }
-
+    //Доставляется
     @GetMapping("/orders/running")
     public ResponseEntity<List<OrderOutDto>> getRunningOrders(HttpServletRequest request) {
         return ResponseEntity.ok(orderService.getOrdersByStatus(request, Status.RUN));
     }
-
+    //Доставлен
     @PatchMapping("/order/status/take")
     public ResponseEntity<?> takeOrderForDelivery(HttpServletRequest request, @RequestParam Long orderId) {
         orderService.setStatusOrderWithCurier(request, orderId, Status.RUN.name());

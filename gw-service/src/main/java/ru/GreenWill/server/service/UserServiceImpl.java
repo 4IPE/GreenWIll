@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import ru.GreenWill.server.mapper.LocationMapper;
 import ru.GreenWill.server.mapper.UserMapper;
 import ru.GreenWill.server.model.Role;
 import ru.GreenWill.server.model.User;
+import ru.GreenWill.server.repository.LocationRepository;
 import ru.GreenWill.server.repository.UserRepository;
 import ru.GreenWill.server.security.jwt.JwtTokenProvider;
 import ru.GreenWill.server.service.inteface.UserService;
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private static final SecureRandom random = new SecureRandom();
     private final AcceptRedisService acceptRedisService;
     private final PasswordEncoder passwordEncoder;
+    private final LocationRepository locationRepository;
 
 
     @Override
@@ -106,7 +107,16 @@ public class UserServiceImpl implements UserService {
         if (userDto.phone() != null) user.setPhone(userDto.phone());
         if (userDto.firstName() != null) user.setFirstName(userDto.firstName());
         if (userDto.lastName() != null) user.setLastName(userDto.lastName());
-        if (userDto.address() != null) user.setAddress(locationMapper.toLocation(userDto.address()));
+        if (userDto.address() != null) {
+            var location = locationMapper.toLocation(userDto.address());
+            var existingLocation = locationRepository.findByStreetIgnoreCaseAndHouseIgnoreCaseAndCityIgnoreCase(
+                    location.getStreet(),
+                    location.getHouse(),
+                    location.getCity()
+            );
+
+            user.setAddress(existingLocation.orElse(location));
+        }
         userRepository.save(user);
     }
 

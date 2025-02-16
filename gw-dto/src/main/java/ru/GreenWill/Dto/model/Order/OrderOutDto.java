@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ru.GreenWill.Dto.model.Cart.CartOutDto;
+import ru.GreenWill.Dto.model.Location.LocationDto;
 import ru.GreenWill.Dto.model.User.UserOutDto;
 
 public record OrderOutDto(
@@ -11,6 +12,6 @@ public record OrderOutDto(
     @NotNull @NotEmpty @NotBlank String status,
     @NotNull UserOutDto user,
     @NotNull CartOutDto cart,
-    String address,
+    @NotNull LocationDto address,
     String phone
 ) {}

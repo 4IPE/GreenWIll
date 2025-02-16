@@ -39,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
         User user = userService.getUserWithCookie(request);
         return orderRepository.findByUser_IdAndStatusIn(
                         user.getId(),
-                        List.of(Status.WAITING, Status.ACTIVITY,Status.GOES,Status.RUN)
+                        List.of(Status.WAITING, Status.ACTIVITY, Status.GOES, Status.RUN)
                 )
                 .stream()
                 .map(orderMapper::toOrderOutDto)
@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
     public void setStatusOrder(HttpServletRequest request, Long id, String status) {
         User user = userService.getUserWithCookie(request);
         if (status.equals(Status.ACTIVITY.name()) || status.equals(Status.GOES.name())
-                ||status.equals(Status.REJECTED.name())) {
+                || status.equals(Status.REJECTED.name())) {
             if (!user.getRole().getRole().equals(RoleName.ROLE_COOK)) {
                 throw new FewRightsException("Только повар может изменить этот статус");
             }
@@ -77,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(Status.valueOf(status));
         orderRepository.save(order);
     }
+
     @Override
     public void setStatusOrderWithCook(HttpServletRequest request, Long id, String status) {
         User user = userService.getUserWithCookie(request);
@@ -114,8 +115,8 @@ public class OrderServiceImpl implements OrderService {
         if (status == Status.WAITING && !user.getRole().getRole().equals(RoleName.ROLE_COOK)) {
             throw new FewRightsException("Only cooks can view waiting orders");
         }
-        if ((status == Status.GOES || status == Status.RUN) && 
-            !user.getRole().getRole().equals(RoleName.ROLE_COURIER)) {
+        if ((status == Status.GOES || status == Status.RUN) &&
+                !user.getRole().getRole().equals(RoleName.ROLE_COURIER)) {
             throw new FewRightsException("Only couriers can view delivery orders");
         }
 

@@ -10,14 +10,14 @@ import useAuth from '@/hooks/useAuth'
 import { useCart } from '@/context/CartContext'
 import axiosConfig from '@/config/axiosConfig'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-
+import { LocationDto } from '@/types/location'
 interface UserInfo {
   username: string
   email: string
   phone: string
   firstName: string
   lastName: string
-  address: string
+  address: LocationDto
 }
 
 export const dynamic = 'force-dynamic'
@@ -96,15 +96,17 @@ export default function Basket() {
       const orderData = {
         user: {
           username: userInfo.username,
-          password: ''
+          password: '',
         },
         cart: {
           user: {
             username: userInfo.username,
-            password: ''
+            password: ''  
           },
           cartItems: cartItems
-        }
+        },
+        address: userInfo.address,
+        phone: userInfo.phone
       }
 
       await axiosConfig.post('/api/order/create', orderData)

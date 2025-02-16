@@ -28,4 +28,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "cook_id", referencedColumnName = "id")
     private User cook;
+    @ManyToOne
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Location address;
 }

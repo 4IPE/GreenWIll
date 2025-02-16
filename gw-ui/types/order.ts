@@ -1,8 +1,9 @@
 import { UserOutDto } from './user'
-
+import { LocationDto } from './location'
 export interface OrderOutDto {
   id: number
   user: UserOutDto
+  address: LocationDto
   cart: {
     id: number
     cartItem: Array<{

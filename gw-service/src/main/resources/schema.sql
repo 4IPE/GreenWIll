@@ -65,10 +65,12 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR,
     courier_id BIGINT,
     cook_id BIGINT,
+    address_id BIGINT,
     CONSTRAINT fk_user_orders FOREIGN KEY(user_id) REFERENCES users(id),
     CONSTRAINT fk_cart_orders FOREIGN KEY(cart_id) REFERENCES carts(id),
     CONSTRAINT fk_cook_orders FOREIGN KEY(cook_id) REFERENCES users(id),
-    CONSTRAINT fk_courier_orders FOREIGN KEY(courier_id) REFERENCES users(id)
+    CONSTRAINT fk_courier_orders FOREIGN KEY(courier_id) REFERENCES users(id),
+    CONSTRAINT fk_location_orders FOREIGN KEY(address_id) REFERENCES locations(id)
 );
 
 
