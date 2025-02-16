@@ -9,6 +9,12 @@ interface SmartCaptchaProps {
 }
 
 export function SmartCaptcha({ onSuccess, className }: SmartCaptchaProps) {
+  const handleSuccess = (token: string) => {
+    if (onSuccess) {
+      onSuccess(token)
+    }
+  }
+
   return (
     <div className={cn("w-full flex justify-center items-center", className)}>
       <style jsx global>{`
@@ -80,7 +86,7 @@ export function SmartCaptcha({ onSuccess, className }: SmartCaptchaProps) {
       `}</style>
       <YandexCaptcha
         sitekey="ysc1_azPN0UKsNUkR7JF4dOMhesoixFTeEKfUvqAVqwlkc123083c"
-        onSuccess={onSuccess}
+        onSuccess={handleSuccess}
         theme="dark"
       />
     </div>

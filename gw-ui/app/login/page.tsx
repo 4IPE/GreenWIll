@@ -35,23 +35,23 @@ export default function Login() {
   const [showVerification, setShowVerification] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [showForgotPassword, setShowForgotPassword] = useState(false)
-  const [isCaptchaValid, setIsCaptchaValid] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isCaptchaValid || !captchaToken) {
+    setIsLoading(true)
+    setError(null)
+
+    if (!captchaToken) {
       toast({
         title: "Ошибка",
         description: "Пожалуйста, подтвердите, что вы не робот",
         variant: "destructive",
       })
+      setIsLoading(false)
       return
     }
-
-    setIsLoading(true)
-    setError(null)
 
     try {
       await axiosConfig.post('/api/login', {
@@ -113,6 +113,10 @@ export default function Login() {
     }
   }
 
+  const handleCaptchaSuccess = (token: string) => {
+    setCaptchaToken(token)
+  }
+
   return (
     <>
       <div className="min-h-screen flex flex-col md:flex-row">
@@ -163,14 +167,13 @@ export default function Login() {
                     <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                   </div>
                   {error && <p className="text-red-500">{error}</p>}
-                  <SmartCaptcha 
-                    onVerify={(token) => {
-                      setIsCaptchaValid(true)
-                      setCaptchaToken(token)
-                    }}
-                  />
+                  <SmartCaptcha onSuccess={handleCaptchaSuccess} />
                   <div className="flex justify-between items-center">
-                    <Button type="submit" className="w-full" disabled={!isCaptchaValid || isLoading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading || !captchaToken}
+                    >
                       {isLoading ? "Вход..." : "Войти"}
                     </Button>
                   </div>
