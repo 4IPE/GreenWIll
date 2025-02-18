@@ -1,36 +1,47 @@
-version: '3.7'
+version: '3.8'
 
 services:
-
   gw-client:
     build: gw-client
     image: gw-client-img
-    container_name: gw-client-con
+    scale: 2
     ports:
-      - "8080:8080"
+      - "8080-8081:8080"
     depends_on:
       - gw-service
       - gw-frontend
     networks:
       - gw-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
     restart: "on-failure"
 
   gw-frontend:
     build: gw-ui
     image: gw-ui-img
-    container_name: gw-ui-con
+    scale: 2
     ports:
-      - "3000:3000"
+      - "3000-3001:3000"
     networks:
       - gw-network
-#    restart: "on-failure"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: "on-failure"
 
   gw-service:
     build: gw-service
     image: gw-service-img
-    container_name: gw-service-con
+    scale: 3
     ports:
-      - "9090:9090"
+      - "9090-9092:9090"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://gw-db:5432/gw-data
       SPRING_DATASOURCE_USERNAME: admin
@@ -40,7 +51,26 @@ services:
       - gw-redis
     networks:
       - gw-network
-#    restart: "on-failure"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: "on-failure"
+    
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - gw-frontend
+      - gw-service
+      - gw-client
+    networks:
+      - gw-network
 
   gw-db:
     image: postgres:16.1
@@ -60,7 +90,6 @@ services:
       - gw-db-data:/var/lib/postgresql/data
     networks:
       - gw-network
-#    restart: "on-failure"
 
   gw-redis:
     image: redis:latest
@@ -71,7 +100,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-#    restart: "on-failure"
     networks:
       - gw-network
 
