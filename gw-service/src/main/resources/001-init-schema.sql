@@ -83,19 +83,32 @@ CREATE TABLE IF NOT EXISTS user_consents (
     user_agent VARCHAR(500),
     consent_version VARCHAR(10) NOT NULL,
 
-    CONSTRAINT fk_user_consents_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES users(id) 
+    CONSTRAINT fk_user_consents_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
         ON DELETE CASCADE,
 
-    CONSTRAINT uk_user_consent_type 
+    CONSTRAINT uk_user_consent_type
         UNIQUE (user_id, consent_type)
 );
 
--- Индекс для поиска по дате принятия
-CREATE INDEX IF NOT EXISTS idx_user_consents_accepted_at 
-    ON user_consents(accepted_at);
+CREATE INDEX IF NOT EXISTS idx_user_consents_accepted_at ON user_consents(accepted_at);
+CREATE INDEX IF NOT EXISTS idx_user_consents_ip_address ON user_consents(ip_address);
 
--- Индекс для поиска по IP адресу
-CREATE INDEX IF NOT EXISTS idx_user_consents_ip_address 
-    ON user_consents(ip_address);
+CREATE INDEX idx_users_role_id ON users(role_id);
+CREATE INDEX idx_users_location_id ON users(location_id);
+
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_courier_id ON orders(courier_id);
+CREATE INDEX idx_orders_cook_id ON orders(cook_id);
+CREATE INDEX idx_orders_address_id ON orders(address_id);
+
+CREATE INDEX idx_carts_user_id ON carts(user_id);
+CREATE INDEX idx_carts_is_active ON carts(is_active);
+
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_name ON products(name);
+
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX idx_cart_items_products_id ON cart_items(products_id);
