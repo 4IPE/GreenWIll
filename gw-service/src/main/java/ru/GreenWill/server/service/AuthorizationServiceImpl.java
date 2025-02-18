@@ -90,6 +90,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(10000);
+//        cookie.setSecure(true); при настройке HTTPS 
         return cookie;
     }
 

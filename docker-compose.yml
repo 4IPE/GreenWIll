@@ -4,28 +4,16 @@ services:
   gw-client:
     build: gw-client
     image: gw-client-img
-    scale: 2
-    ports:
-      - "8080-8081:8080"
     depends_on:
-      - gw-service
+      - consul
       - gw-frontend
     networks:
       - gw-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
     restart: "on-failure"
 
   gw-frontend:
     build: gw-ui
     image: gw-ui-img
-    scale: 2
-    ports:
-      - "3000-3001:3000"
     networks:
       - gw-network
     healthcheck:
@@ -39,9 +27,6 @@ services:
   gw-service:
     build: gw-service
     image: gw-service-img
-    scale: 3
-    ports:
-      - "9090-9092:9090"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://gw-db:5432/gw-data
       SPRING_DATASOURCE_USERNAME: admin
@@ -49,16 +34,11 @@ services:
     depends_on:
       - gw-db
       - gw-redis
+      - gw-client
     networks:
       - gw-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
     restart: "on-failure"
-    
+
   nginx:
     image: nginx:latest
     ports:
@@ -102,7 +82,17 @@ services:
       retries: 3
     networks:
       - gw-network
-
+  consul:
+    image: consul:1.14.0
+    container_name: consul
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    ports:
+      - "8500:8500" # Consul Web UI
+      - "8600:8600/udp" # DNS interface
+    networks:
+      - gw-network
+    restart: always
 volumes:
   gw-db-data:
 

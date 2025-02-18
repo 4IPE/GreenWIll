@@ -175,6 +175,7 @@ public class UserServiceImpl implements UserService {
         cookie.setPath("/");
         cookie.setMaxAge(600);
         cookie.setSecure(false);
+//      cookie.setSecure(true); при настройке HTTPS
         response.addCookie(cookie);
         log.info("Created cookie with token: {}", jwt);
     }
@@ -182,8 +183,9 @@ public class UserServiceImpl implements UserService {
     private void clearCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("small", null);
         cookie.setHttpOnly(true);
-        cookie.setPath("/edit");
+        cookie.setPath("/");
         cookie.setMaxAge(0);
+//      cookie.setSecure(true); при настройке HTTPS
         response.addCookie(cookie);
     }
 }

@@ -18,7 +18,7 @@ public class GatewayConfig {
                                     System.out.println("Request: " + exchange.getRequest().getPath());
                                     return chain.filter(exchange);
                                 }))
-                        .uri("http://gw-service:9090"))
+                        .uri("lb://gw-service"))
                 .build();
     }
 
