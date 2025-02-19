@@ -29,11 +29,19 @@ public class JwtTokenProvider {
 
     private final static long validityInMilliseconds = 3600000; // 1h
     private final static long validityTimeForChangePassword = 600000;
+    private String secretKey;
     private final Key key;
 
-    public JwtTokenProvider() {
-        SecretKey generatedKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        String secretKey = Base64.getEncoder().encodeToString(generatedKey.getEncoded());
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+        if (secretKey == null || secretKey.isEmpty()) {
+            throw new IllegalArgumentException("Секретный ключ не может быть пустым!");
+        }
+        if (secretKey.length() < 32) {
+            SecretKey generatedKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+            secretKey = Base64.getEncoder().encodeToString(generatedKey.getEncoded());
+            log.info(secretKey);
+        }
+
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
