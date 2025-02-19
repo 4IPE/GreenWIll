@@ -1,28 +1,25 @@
 package ru.GreenWill.server.controller;
 
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import ru.GreenWill.Dto.model.Product.ProductDtoSave;
 import ru.GreenWill.Dto.model.Product.ProductOutDto;
-import ru.GreenWill.server.enumarated.RoleName;
+import ru.GreenWill.server.annotation.RateLimit;
 import ru.GreenWill.server.service.inteface.ProductService;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Контроллер для управления продуктами.
- * 
+ *
  * <p>Обрабатывает операции с продуктами:</p>
  * <ul>
  *     <li>Получение списка всех продуктов</li>
@@ -46,6 +43,8 @@ public class ProductController {
      * @return список продуктов
      */
     @GetMapping("/products/all")
+    @Cacheable(value = "products")
+    @RateLimit
     public ResponseEntity<List<ProductOutDto>> getAll() {
         List<ProductOutDto> products = productService.getAll();
         log.info("Fetched products: {}", products);
@@ -55,13 +54,13 @@ public class ProductController {
     /**
      * Сохраняет новый продукт в систему.
      * Доступно только для администраторов.
-     *
-     * @param productDtoSave данные нового продукта
-     * @return статус операции
+     * При добавлении нового продукта очищает кэш всех продуктов
      */
     @PostMapping("/admin/add")
+    @CacheEvict(value = "products", allEntries = true)
     public ResponseEntity<?> saveProducts(@RequestBody ProductDtoSave productDtoSave) {
         productService.saveProduct(productDtoSave);
+        log.info("Product cache cleared after adding new product");
         return ResponseEntity.ok().body("Success");
     }
 
