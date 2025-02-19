@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.GreenWill.Dto.model.User.UserSingInDto;
 import ru.GreenWill.Dto.model.User.UserSingUpDto;
+import ru.GreenWill.server.annotation.RateLimit;
 import ru.GreenWill.server.service.inteface.AuthorizationService;
 
 /**
  * Контроллер для аутентификации и авторизации пользователей.
- * 
+ *
  * <p>Обрабатывает операции, связанные с аутентификацией:</p>
  * <ul>
  *     <li>Вход в систему</li>
@@ -40,10 +41,11 @@ public class AuthController {
     /**
      * Обрабатывает запрос на вход в систему.
      *
-     * @param request данные для входа (логин и пароль)
+     * @param request  данные для входа (логин и пароль)
      * @param response HTTP-ответ для установки токена
      * @return статус операции входа
      */
+    @RateLimit(10)
     @PostMapping("/login")
     public ResponseEntity<?> signIn(@RequestBody @Valid UserSingInDto request, HttpServletResponse response) {
         log.info("Отправлен запрос на вход пользователя: {}", request.username());
@@ -56,10 +58,11 @@ public class AuthController {
      * Регистрирует нового пользователя в системе.
      *
      * @param userSingUpDto данные нового пользователя
-     * @param response HTTP-ответ для установки токена
-     * @param request HTTP-запрос
+     * @param response      HTTP-ответ для установки токена
+     * @param request       HTTP-запрос
      * @return статус регистрации
      */
+    @RateLimit(5)
     @PostMapping("/register")
     public ResponseEntity<?> signUp(@RequestBody @Valid UserSingUpDto userSingUpDto,
                                     HttpServletResponse response,
@@ -86,11 +89,12 @@ public class AuthController {
      * Проверяет код верификации при входе.
      *
      * @param username имя пользователя
-     * @param key код верификации
+     * @param key      код верификации
      * @param response HTTP-ответ
      * @return статус верификации
      */
     @PostMapping("/login/verify")
+    @RateLimit
     public ResponseEntity<?> checkLog(@RequestParam String username, @RequestParam String key, HttpServletResponse response) {
         try {
             authorizationService.finalizeLogin(username, key, response);
@@ -101,6 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/create")
+    @RateLimit
     public ResponseEntity<?> create(@RequestParam String username, @RequestParam String email) {
         authorizationService.createAndSendKeyAuthForUser(username, email);
         return ResponseEntity.ok().body("Successfully create");
