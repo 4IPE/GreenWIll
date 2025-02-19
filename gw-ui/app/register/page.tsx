@@ -14,7 +14,6 @@ import axiosConfig from '@/config/axiosConfig'
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { VerificationCodeModal } from "@/components/verification-code-modal"
-import { InvisibleSmartCaptcha } from "@/components/ui/invisible-smart-captcha"
 import { CheckboxWithLabel } from "@/components/ui/checkbox-with-label"
 
 
@@ -45,9 +44,9 @@ export default function Register() {
   })
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [showVerification, setShowVerification] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState<string>('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [termsError, setTermsError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -156,22 +155,37 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    setIsLoading(true)
+    setErrors({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    })
+
     if (!await validateForm()) {
+      setIsLoading(false)
       return
     }
 
     try {
-      await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
+      await axiosConfig.post('/api/register', {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        termsAccepted: termsAccepted,
+      })
       
       setShowVerification(true)
     } catch (err) {
       const error = err as RegisterError
       toast({
         title: "Ошибка",
-        description: error.response?.data?.message || "Ошибка при отправке кода подтверждения",
+        description: error.response?.data?.message || "Ошибка при регистрации",
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -185,7 +199,6 @@ export default function Register() {
           email: formData.email,
           password: formData.password,
           termsAccepted: termsAccepted,
-          captchaToken: captchaToken
         })
 
         if (registerResponse.status === 200) {
@@ -241,8 +254,24 @@ export default function Register() {
     }
   }
 
-  const handleCaptchaSuccess = (token: string) => {
-    setCaptchaToken(token)
+  // Функция проверки валидности формы
+  const isFormValid = () => {
+    return (
+      formData.username.length >= 5 && 
+      validateEmail(formData.email) && 
+      formData.password.length >= 8 && 
+      formData.password === formData.confirmPassword &&
+      termsAccepted &&
+      passwordStrength >= 50
+    )
+  }
+
+  // Обновляем стили кнопки в зависимости от валидности формы
+  const getButtonStyles = () => {
+    if (!isFormValid()) {
+      return "w-full opacity-50 cursor-not-allowed"
+    }
+    return "w-full"
   }
 
   return (
@@ -354,10 +383,23 @@ export default function Register() {
                     error={termsError}
                   />
 
-                  <InvisibleSmartCaptcha onSuccess={handleCaptchaSuccess} />
-
-                  <Button type="submit" className="w-full">
-                    Зарегистрироваться
+                  <Button 
+                    type="submit" 
+                    className={getButtonStyles()}
+                    disabled={isLoading}
+                    onClick={(e) => {
+                      if (!isFormValid()) {
+                        e.preventDefault()
+                        toast({
+                          title: "Ошибка",
+                          description: "Пожалуйста, заполните все поля корректно",
+                          variant: "destructive",
+                        })
+                        return
+                      }
+                    }}
+                  >
+                    {isLoading ? "Регистрация..." : "Зарегистрироваться"}
                   </Button>
                 </form>
                 <div className="mt-4 text-center text-sm">
