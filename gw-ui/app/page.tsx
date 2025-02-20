@@ -10,19 +10,20 @@ const features = [
   {
     title: "Свежие ингредиенты",
     description: "Мы используем самые свежие, выращенные на местных фермах ингредиенты для наших блюд.",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5ed89f0f-f398-49f3-a360-25ac679df515-b7UC0fxzJTLu6SPUotxIVWaJolLD8q.jpeg"
+    image: "https://i.ibb.co/R4Gh9R4N/5ed89f0f-f398-49f3-a360-25ac679df515.jpg"
   },
   {
     title: "Быстрая доставка",
     description: "Ваше здоровое питание всего в нескольких кликах от вашей двери.",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/11ff62c3-a88e-46a7-959b-f61b8f5bdfa2-6FIoKJBCVw8oSNDNvXWSMiBUkTRcmu.jpeg"
+    image: "https://i.ibb.co/4ns1yXb9/11ff62c3-a88e-46a7-959b-f61b8f5bdfa2.jpg"
   },
   {
     title: "Одобрено диетологами",
     description: "Наши блюда разработаны и одобрены сертифицированными диетологами.",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3485209d-2b30-4c32-b795-15f4149b2cae-WJezWxy890D1221FUEeNy06I9bkYlN.jpeg"
+    image: "https://i.ibb.co/tMLb3Z5L/3485209d-2b30-4c32-b795-15f4149b2cae.jpg"
   }
 ]
+
 
 export default function Home() {
   const [showContent, setShowContent] = useState(false)
@@ -43,7 +44,7 @@ export default function Home() {
   {/* Background image with overlay */}
   <div className="absolute inset-0 z-0">
     <Image
-      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3063115c-01e0-4c14-9c8d-75e773f97b5a-epXbiFKuCmHfp4bravJk3BCeAXBv9Z.jpeg"
+      src="https://i.ibb.co/tMfmdx3J/3063115c-01e0-4c14-9c8d-75e773f97b5a.jpg"
       alt="Green Apple"
       fill
       className="object-cover blur-sm scale-110"
@@ -51,7 +52,6 @@ export default function Home() {
     />
     <div className="absolute inset-0 bg-black/30" />
   </div>
-  
   {/* Content */}
   <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
     <motion.div

@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { ProductFilters, FilterValues } from '@/components/product-filters'
 import MealCard from '@/components/meal-card'
 import MealModal from '@/components/meal-modal'
 import { motion } from 'framer-motion'
 import axiosConfig from '@/config/axiosConfig'
+import { FiltersSheet } from "@/components/filters-sheet"
 
-// Определяем интерфейс для элемента меню
 interface Meal {
   id: number
   name: string
@@ -18,56 +19,133 @@ interface Meal {
   energyVal: number
 }
 
-interface ApiMeal {
-  id: number
-  name: string
-  price: number
-  img: string
-  description: string
-  calories: number
-  category?: string  
-  energyVal: number
-}
-
 export default function Menu() {
   const [meals, setMeals] = useState<Meal[]>([])
+  const [filteredMeals, setFilteredMeals] = useState<Meal[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchMeals = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axiosConfig.get('/api/products/all')
-        const mealsWithCategory = response.data.map((meal: ApiMeal) => ({
+        const [mealsResponse, categoriesResponse] = await Promise.all([
+          axiosConfig.get('/api/products/all'),
+          axiosConfig.get('/api/products/categories')
+        ])
+
+        const mealsWithCategory = mealsResponse.data.map((meal: Meal) => ({
           ...meal,
-          category: meal.category || ''
+          category: meal.category?.toLowerCase() || ''
         }))
+        
+        const normalizedCategories = categoriesResponse.data.map((category: string) => 
+          category.toLowerCase()
+        )
+        
         setMeals(mealsWithCategory)
+        setFilteredMeals(mealsWithCategory)
+        setCategories(normalizedCategories)
       } catch (err) {
-        setError('Failed to load meals. Please try again later.')
-        console.error('Failed to fetch meals:', err)
+        setError('Failed to load data. Please try again later.')
+        console.error('Failed to fetch data:', err)
       }
     }
 
-    fetchMeals()
+    fetchData()
   }, [])
 
+  const handleFilterChange = (filters: FilterValues) => {
+    let filtered = [...meals]
+
+    // Применяем фильтр категорий
+    if (filters.categories.length > 0) {
+      filtered = filtered.filter(meal => 
+        filters.categories.some(category => 
+          meal.category.toLowerCase() === category.toLowerCase()
+        )
+      )
+    }
+
+    // Применяем фильтры по диапазонам
+    filtered = filtered.filter(meal => 
+      meal.price >= filters.priceRange[0] &&
+      meal.price <= filters.priceRange[1] &&
+      meal.calories >= filters.caloriesRange[0] &&
+      meal.calories <= filters.caloriesRange[1] &&
+      meal.energyVal >= filters.energyRange[0] &&
+      meal.energyVal <= filters.energyRange[1]
+    )
+
+    // Применяем быстрые фильтры
+    if (filters.lowCalories) {
+      filtered = filtered.filter(meal => meal.calories < 300)
+    }
+    if (filters.lowPrice) {
+      filtered = filtered.filter(meal => meal.price < 500)
+    }
+    if (filters.highEnergy) {
+      filtered = filtered.filter(meal => meal.energyVal > 500)
+    }
+
+    // Применяем сортировку
+    filtered.sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'price-asc':
+          return a.price - b.price
+        case 'price-desc':
+          return b.price - a.price
+        case 'calories-asc':
+          return a.calories - b.calories
+        case 'calories-desc':
+          return b.calories - a.calories
+        case 'energy-asc':
+          return a.energyVal - b.energyVal
+        case 'energy-desc':
+          return b.energyVal - a.energyVal
+        default:
+          return 0
+      }
+    })
+
+    setFilteredMeals(filtered)
+  }
+
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Наше Меню</h1>
       {error && <p className="text-red-500 text-center">{error}</p>}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {meals.map((meal, index) => (
-          <motion.div
-            key={meal.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            <MealCard meal={meal} onSelect={() => setSelectedMeal(meal)} />
-          </motion.div>
-        ))}
+      
+      <div className="mb-4 flex items-center justify-between">
+        <FiltersSheet 
+          onFilterChange={handleFilterChange} 
+          categories={categories}
+        />
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="hidden md:block">
+          <ProductFilters 
+            onFilterChange={handleFilterChange} 
+            categories={categories}
+          />
+        </div>
+        <div className="md:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredMeals.map((meal, index) => (
+              <motion.div
+                key={meal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <MealCard meal={meal} onSelect={() => setSelectedMeal(meal)} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {selectedMeal && (
         <MealModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
       )}

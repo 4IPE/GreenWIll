@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, User, MenuIcon, Utensils } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -14,8 +15,17 @@ export default function Header() {
 
   return (
     <header className="bg-primary text-primary-foreground sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold">GreenWill</Link>
+      <div className="container mx-auto px-3 py-1 pb-1 flex justify-between items-center">
+        <Link href="/" className="flex items-center -mb-1">
+          <Image
+            src="https://i.ibb.co/zVjY87H9/logo.png"
+            alt="GreenWill"
+            width={100}
+            height={15}
+            priority
+            className="h-auto"
+          />
+        </Link>
         <nav className="hidden md:flex space-x-4 items-center">
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
             <Link href="/menu">

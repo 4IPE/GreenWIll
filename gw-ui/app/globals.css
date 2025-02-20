@@ -76,3 +76,32 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #f0f0f0;  /* очень светло-серый фон */
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #9ca3af;  /* светло-серый цвет ползунка */
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);  /* легкая тень для объема */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #9ca3af;  /* светло-серый цвет ползунка */
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);  /* легкая тень для объема */
+}

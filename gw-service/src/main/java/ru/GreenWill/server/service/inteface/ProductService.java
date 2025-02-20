@@ -10,4 +10,6 @@ public interface ProductService {
     List<ProductOutDto> getAll();
 
     void saveProduct(ProductDtoSave productDtoSave);
+
+    List<String> getAllCategories();
 }

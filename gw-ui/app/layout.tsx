@@ -11,8 +11,11 @@ import { OrderNotifications } from '@/components/order-notifications'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'GreenWill - Healthy Food Delivery',
-  description: 'Quick and healthy food delivery service',
+  title: 'GreenWill',
+  description: 'Здоровое питание с доставкой',
+  icons: {
+    icon: 'https://i.ibb.co/p68DQDdx/mini-logo.png',
+  },
 }
 
 export default function RootLayout({
@@ -21,7 +24,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="ru">
+      <head>
+        <link rel="icon" href="/mini-logo.png" />
+      </head>
       <body className={inter.className}>
         <CartProvider>
           <OrderNotificationsProvider>

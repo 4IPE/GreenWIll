@@ -64,4 +64,17 @@ public class ProductController {
         return ResponseEntity.ok().body("Success");
     }
 
+    /**
+     * Получает список всех уникальных категорий продуктов.
+     * Этот метод доступен всем пользователям.
+     *
+     * @return список категорий
+     */
+    @GetMapping("/products/categories")
+    @Cacheable(value = "categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        List<String> categories = productService.getAllCategories();
+        log.info("Fetched categories: {}", categories);
+        return ResponseEntity.ok(categories);
+    }
 }

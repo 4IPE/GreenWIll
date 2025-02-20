@@ -45,7 +45,7 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/login/verify", "/register", "/products/all", "/user/status",
+                        .requestMatchers("/login", "/login/verify", "/register", "/products/**", "/user/status",
                                 "/user/check", "/user/check-email", "/user/check-phone",
                                 "/create", "/check", "/user/get", "/req/password", "/edit/accepted", "/actuator/health")
                         .permitAll()
