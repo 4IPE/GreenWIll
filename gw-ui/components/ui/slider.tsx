@@ -8,16 +8,23 @@ interface SliderProps {
   max: number
   step: number
   onValueChange: (value: [number, number]) => void
+  value?: [number, number]
   className?: string
 }
 
-export function Slider({ defaultValue, max, step, onValueChange, className }: SliderProps) {
-  const [value, setValue] = React.useState(defaultValue)
+export function Slider({ defaultValue, value, max, step, onValueChange, className }: SliderProps) {
+  const [localValue, setLocalValue] = React.useState(value || defaultValue)
+
+  React.useEffect(() => {
+    if (value) {
+      setLocalValue(value)
+    }
+  }, [value])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const newValue = [...value] as [number, number]
+    const newValue = [...localValue] as [number, number]
     newValue[index] = Number(e.target.value)
-    setValue(newValue)
+    setLocalValue(newValue)
     onValueChange(newValue)
   }
 
@@ -28,7 +35,7 @@ export function Slider({ defaultValue, max, step, onValueChange, className }: Sl
         min={0}
         max={max}
         step={step}
-        value={value[0]}
+        value={localValue[0]}
         onChange={(e) => handleChange(e, 0)}
         className="w-full"
       />
@@ -37,7 +44,7 @@ export function Slider({ defaultValue, max, step, onValueChange, className }: Sl
         min={0}
         max={max}
         step={step}
-        value={value[1]}
+        value={localValue[1]}
         onChange={(e) => handleChange(e, 1)}
         className="w-full"
       />

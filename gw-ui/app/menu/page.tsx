@@ -67,46 +67,33 @@ export default function Menu() {
       )
     }
 
-    // Применяем фильтры по диапазонам
-    filtered = filtered.filter(meal => 
-      meal.price >= filters.priceRange[0] &&
-      meal.price <= filters.priceRange[1] &&
-      meal.calories >= filters.caloriesRange[0] &&
-      meal.calories <= filters.caloriesRange[1] &&
-      meal.energyVal >= filters.energyRange[0] &&
-      meal.energyVal <= filters.energyRange[1]
-    )
-
     // Применяем быстрые фильтры
     if (filters.lowCalories) {
       filtered = filtered.filter(meal => meal.calories < 300)
     }
+
     if (filters.lowPrice) {
       filtered = filtered.filter(meal => meal.price < 500)
     }
+
     if (filters.highEnergy) {
       filtered = filtered.filter(meal => meal.energyVal > 500)
     }
 
     // Применяем сортировку
-    filtered.sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'price-asc':
-          return a.price - b.price
-        case 'price-desc':
-          return b.price - a.price
-        case 'calories-asc':
-          return a.calories - b.calories
-        case 'calories-desc':
-          return b.calories - a.calories
-        case 'energy-asc':
-          return a.energyVal - b.energyVal
-        case 'energy-desc':
-          return b.energyVal - a.energyVal
-        default:
-          return 0
-      }
-    })
+    if (filters.sortBy) {
+      filtered.sort((a, b) => {
+        switch (filters.sortBy) {
+          case 'price-asc': return a.price - b.price
+          case 'price-desc': return b.price - a.price
+          case 'calories-asc': return a.calories - b.calories
+          case 'calories-desc': return b.calories - a.calories
+          case 'energy-asc': return a.energyVal - b.energyVal
+          case 'energy-desc': return b.energyVal - a.energyVal
+          default: return 0
+        }
+      })
+    }
 
     setFilteredMeals(filtered)
   }
