@@ -19,19 +19,13 @@ public class CacheConfig {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 
         cacheManager.setCacheNames(Arrays.asList(
-                "users",           // Базовая информация о пользователях
-                "userProfiles",    // Полные профили пользователей
-                "userChecks",      // Результаты проверок username
-                "emailChecks",     // Результаты проверок email
-                "products",        // Кэш для продуктов
-                "orders",          // Кэш для заказов
-                "cart"            // Кэш для корзины
-        ));
+                "products",
+                "orders",
+                "cart",
+                "categories"));
 
-        // Создаем билдер с разными настройками для разных кэшей
         Caffeine<Object, Object> caffeineBuilder = Caffeine.newBuilder();
 
-        // Настраиваем дефолтные параметры
         caffeineBuilder
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(500)
@@ -39,7 +33,6 @@ public class CacheConfig {
 
         cacheManager.setCaffeine(caffeineBuilder);
 
-        // Настраиваем специфичные кэши
         cacheManager.registerCustomCache("products",
                 Caffeine.newBuilder()
                         .expireAfterWrite(2, TimeUnit.HOURS)
@@ -50,6 +43,13 @@ public class CacheConfig {
         cacheManager.registerCustomCache("orders",
                 Caffeine.newBuilder()
                         .expireAfterWrite(1, TimeUnit.HOURS)
+                        .maximumSize(500)
+                        .recordStats()
+                        .build()
+        );
+        cacheManager.registerCustomCache("categories",
+                Caffeine.newBuilder()
+                        .expireAfterWrite(2, TimeUnit.HOURS)
                         .maximumSize(500)
                         .recordStats()
                         .build()
