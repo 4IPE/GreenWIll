@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, User, MenuIcon, Utensils } from 'lucide-react'
+import { ShoppingCart, User, MenuIcon, Utensils, Apple } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useCart } from "@/context/CartContext"
 import { Badge } from "@/components/ui/badge"
@@ -31,6 +31,12 @@ export default function Header() {
             <Link href="/menu">
               <Utensils className="w-4 h-4 mr-2" />
               Меню
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
+            <Link href="/nutrition">
+              <Apple className="w-4 h-4 mr-2" />
+              План питания
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
@@ -61,6 +67,12 @@ export default function Header() {
                 <Link href="/menu">
                   <Utensils className="w-4 h-4 mr-2" />
                   Меню
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
+                <Link href="/nutrition">
+                  <Apple className="w-4 h-4 mr-2" />
+                  План питания
                 </Link>
               </Button>
               <Button asChild variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
