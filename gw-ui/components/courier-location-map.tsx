@@ -37,7 +37,7 @@ export function CourierLocationMap({
   onUpdateLocation,
   isLoadingLocation 
 }: CourierLocationMapProps) {
-  // Сортируем заказы по расстоянию от курьера
+
   const sortedOrders = useMemo(() => {
     if (!courierLocation) return orders;
 

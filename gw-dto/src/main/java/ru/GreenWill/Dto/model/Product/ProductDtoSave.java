@@ -39,5 +39,14 @@ public class ProductDtoSave {
     @NotNull
     @NotEmpty
     @NotBlank
-    Integer energyVal;
+    Integer fats;
+    @NotNull
+    @NotEmpty
+    @NotBlank
+    Integer proteins;
+    @NotNull
+    @NotEmpty
+    @NotBlank
+    Integer carbohydrates;
+
 }

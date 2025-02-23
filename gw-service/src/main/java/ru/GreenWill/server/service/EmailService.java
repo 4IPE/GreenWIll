@@ -4,12 +4,10 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -17,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    @Value("${mail.activate}")
+    private String email;
 
     public void sendEmail(String to, String code) {
         try {
@@ -115,12 +115,13 @@ public class EmailService {
                     </body>
                     </html>
                     """.formatted(code);
-
-            helper.setFrom("arinmun@yandex.ru");
+            log.info("Отправляем на такой email {}", email);
+            helper.setFrom(email);
             helper.setTo(to);
-            helper.setSubject("Ваш код: "+code+" для подтверждения в сервисе GreenWill");
+            helper.setSubject("Ваш код: " + code + " для подтверждения в сервисе GreenWill");
             helper.setText(emailContent, true);
             mailSender.send(message);
+            log.info("Я отправил письмо с кодом" + code);
         } catch (MessagingException e) {
             log.error("Ошибка в отправке сообщения: {} ", e.getMessage());
         }

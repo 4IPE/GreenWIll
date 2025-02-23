@@ -24,11 +24,16 @@ public class Product {
     @Column
     private Integer calories;
     @Column
+    private Integer proteins;
+    @Column
+    private Integer carbohydrates;
+    @Column
+    private Integer fats ;
+    @Column
     private String category;
     @Column
     private String img;
-    @Column(name = "energy_val")
-    private Integer energyVal;
+
 
     @Override
     public String toString() {

@@ -8,4 +8,3 @@ import ru.GreenWill.Dto.model.Product.ProductOutDto;
 public record CartItemOutDto(@NotNull @NotEmpty @NotBlank ProductOutDto product,
                             @NotNull @NotEmpty @NotBlank Long countProducts) {
 }
-//TODO

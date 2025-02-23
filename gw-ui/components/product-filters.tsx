@@ -21,7 +21,9 @@ export interface FilterValues {
   categories: string[]
   lowCalories: boolean
   lowPrice: boolean
-  highEnergy: boolean
+  highProtein: boolean
+  highFat: boolean
+  highCarbs: boolean
 }
 
 export function ProductFilters({ onFilterChange, categories }: FilterProps) {
@@ -29,21 +31,27 @@ export function ProductFilters({ onFilterChange, categories }: FilterProps) {
   const [sortBy, setSortBy] = useState<string>('')
   const [lowCalories, setLowCalories] = useState<boolean>(false)
   const [lowPrice, setLowPrice] = useState<boolean>(false)
-  const [highEnergy, setHighEnergy] = useState<boolean>(false)
+  const [highProtein, setHighProtein] = useState<boolean>(false)
+  const [highFat, setHighFat] = useState<boolean>(false)
+  const [highCarbs, setHighCarbs] = useState<boolean>(false)
 
   const handleFilterChange = (newFilters: Partial<FilterValues>) => {
     if (newFilters.categories !== undefined) setSelectedCategories(newFilters.categories);
     if (newFilters.sortBy !== undefined) setSortBy(newFilters.sortBy);
     if (newFilters.lowCalories !== undefined) setLowCalories(newFilters.lowCalories);
     if (newFilters.lowPrice !== undefined) setLowPrice(newFilters.lowPrice);
-    if (newFilters.highEnergy !== undefined) setHighEnergy(newFilters.highEnergy);
+    if (newFilters.highProtein !== undefined) setHighProtein(newFilters.highProtein);
+    if (newFilters.highFat !== undefined) setHighFat(newFilters.highFat);
+    if (newFilters.highCarbs !== undefined) setHighCarbs(newFilters.highCarbs);
 
     onFilterChange({
       categories: newFilters.categories ?? selectedCategories,
       sortBy: newFilters.sortBy ?? sortBy,
       lowCalories: newFilters.lowCalories ?? lowCalories,
       lowPrice: newFilters.lowPrice ?? lowPrice,
-      highEnergy: newFilters.highEnergy ?? highEnergy
+      highProtein: newFilters.highProtein ?? highProtein,
+      highFat: newFilters.highFat ?? highFat,
+      highCarbs: newFilters.highCarbs ?? highCarbs
     });
   };
 
@@ -52,14 +60,18 @@ export function ProductFilters({ onFilterChange, categories }: FilterProps) {
     setSortBy('')
     setLowCalories(false)
     setLowPrice(false)
-    setHighEnergy(false)
+    setHighProtein(false)
+    setHighFat(false)
+    setHighCarbs(false)
     
     onFilterChange({
       categories: [],
       sortBy: '',
       lowCalories: false,
       lowPrice: false,
-      highEnergy: false
+      highProtein: false,
+      highFat: false,
+      highCarbs: false
     })
   }
 
@@ -98,12 +110,13 @@ export function ProductFilters({ onFilterChange, categories }: FilterProps) {
             <SelectValue placeholder="Выберите сортировку" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
-            <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
-            <SelectItem value="calories-asc">Калории: по возрастанию</SelectItem>
-            <SelectItem value="calories-desc">Калории: по убыванию</SelectItem>
-            <SelectItem value="energy-asc">КБЖУ: по возрастанию</SelectItem>
-            <SelectItem value="energy-desc">КБЖУ: по убыванию</SelectItem>
+            <SelectItem value="price-asc">Цена (по возрастанию)</SelectItem>
+            <SelectItem value="price-desc">Цена (по убыванию)</SelectItem>
+            <SelectItem value="calories-asc">Калории (по возрастанию)</SelectItem>
+            <SelectItem value="calories-desc">Калории (по убыванию)</SelectItem>
+            <SelectItem value="protein-desc">Больше белка</SelectItem>
+            <SelectItem value="fat-desc">Больше жиров</SelectItem>
+            <SelectItem value="carbs-desc">Больше углеводов</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -129,10 +142,26 @@ export function ProductFilters({ onFilterChange, categories }: FilterProps) {
 
         <div className="flex items-center space-x-2">
           <Switch
-            checked={highEnergy}
-            onCheckedChange={(checked) => handleFilterChange({ highEnergy: checked })}
+            checked={highProtein}
+            onCheckedChange={(checked) => handleFilterChange({ highProtein: checked })}
           />
-          <Label>Высокое содержание КБЖУ</Label>
+          <Label>Высокое содержание белка</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            checked={highFat}
+            onCheckedChange={(checked) => handleFilterChange({ highFat: checked })}
+          />
+          <Label>Высокое содержание жиров</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            checked={highCarbs}
+            onCheckedChange={(checked) => handleFilterChange({ highCarbs: checked })}
+          />
+          <Label>Высокое содержание углеводов</Label>
         </div>
       </div>
 

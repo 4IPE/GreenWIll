@@ -36,7 +36,7 @@ export function FileInput({ className, onChange, value, preview = true, ...props
     formData.append('name', file.name)
 
     try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=d2b0ee97cfab115cdfd9fe9577d11e85`, {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY!}`, {
         method: 'POST',
         body: formData
       })

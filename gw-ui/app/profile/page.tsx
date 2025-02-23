@@ -64,7 +64,9 @@ interface ProductForm {
   calories: string
   category: string
   img: string
-  energyVal: string
+  proteins: string
+  carbohydrates: string
+  fats: string
 }
 
 export const dynamic = 'force-dynamic'
@@ -106,7 +108,9 @@ export default function Profile() {
     calories: '',
     category: '',
     img: '',
-    energyVal: ''
+    proteins: '',
+    carbohydrates: '',
+    fats: ''
   })
   const [roleUsername, setRoleUsername] = useState('')
   const [selectedRole, setSelectedRole] = useState('')
@@ -497,7 +501,9 @@ export default function Profile() {
         calories: productForm.calories,
         category: productForm.category,
         img: productForm.img,
-        energyVal: productForm.energyVal
+        proteins: productForm.proteins,
+        carbohydrates: productForm.carbohydrates,
+        fats: productForm.fats
       })
       
       toast({
@@ -511,7 +517,9 @@ export default function Profile() {
         calories: '',
         category: '',
         img: '',
-        energyVal: ''
+        proteins: '',
+        carbohydrates: '',
+        fats: ''
       })
     } catch (err) {
       toast({
@@ -1014,14 +1022,48 @@ export default function Profile() {
                         </div>
 
                         <div>
-                          <Label htmlFor="energyVal">КБЖУ</Label>
+                          <Label htmlFor="proteins">Белки</Label>
                           <Input
-                            id="energyVal"
-                            value={productForm.energyVal}
+                            id="proteins"
+                            value={productForm.proteins}
                             onChange={(e) => {
                               const value = e.target.value.replace(/[^0-9]/g, '')
                               if (value === '' || parseInt(value) >= 0) {
-                                setProductForm(prev => ({...prev, energyVal: value}))
+                                setProductForm(prev => ({...prev, proteins: value}))
+                              }
+                            }}
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="carbohydrates">Углеводы</Label>
+                          <Input
+                            id="carbohydrates"
+                            value={productForm.carbohydrates}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '')
+                              if (value === '' || parseInt(value) >= 0) {
+                                setProductForm(prev => ({...prev, carbohydrates: value}))
+                              }
+                            }}
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="fats">Жиры</Label>
+                          <Input
+                            id="fats"
+                            value={productForm.fats}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '')
+                              if (value === '' || parseInt(value) >= 0) {
+                                setProductForm(prev => ({...prev, fats: value}))
                               }
                             }}
                             pattern="[0-9]*"

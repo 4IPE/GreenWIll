@@ -19,7 +19,9 @@ interface Meal {
   calories: number
   category: string
   img: string
-  energyVal: number
+  proteins: number
+  carbohydrates: number
+  fats: number
 }
 
 interface MealModalProps {
@@ -50,7 +52,9 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
           calories: meal.calories,
           category: meal.category,
           img: meal.img,
-          energyVal: meal.energyVal
+          proteins: meal.proteins,
+          carbohydrates: meal.carbohydrates,
+          fats: meal.fats
         },
         countProducts: 1
       })
@@ -83,7 +87,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold">{meal.price} ₽</span>
             <span className="text-muted-foreground">
-              {meal.calories} калорий | КБЖУ: {meal.energyVal}
+              {meal.calories} калорий | Б:{meal.proteins} Ж:{meal.fats} У:{meal.carbohydrates}
             </span>
           </div>
         </div>

@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils"
 interface FiltersSheetProps {
   onFilterChange: (filters: FilterValues) => void
   categories: string[]
+  className?: string
 }
 
-export function FiltersSheet({ onFilterChange, categories }: FiltersSheetProps) {
+export function FiltersSheet({ onFilterChange, categories, className }: FiltersSheetProps) {
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -20,7 +21,7 @@ export function FiltersSheet({ onFilterChange, categories }: FiltersSheetProps) 
       <Button
         variant="outline"
         size="sm"
-        className="lg:hidden"
+        className={cn("lg:hidden", className)}
         onClick={() => setOpen(true)}
       >
         <FilterIcon className="mr-2 h-4 w-4" />

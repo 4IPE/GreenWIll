@@ -16,7 +16,9 @@ interface Meal {
   description: string
   calories: number
   category: string
-  energyVal: number
+  proteins: number
+  carbohydrates: number
+  fats: number
 }
 
 export default function Menu() {
@@ -76,8 +78,16 @@ export default function Menu() {
       filtered = filtered.filter(meal => meal.price < 500)
     }
 
-    if (filters.highEnergy) {
-      filtered = filtered.filter(meal => meal.energyVal > 500)
+    if (filters.highProtein) {
+      filtered = filtered.filter(meal => meal.proteins > 30)
+    }
+
+    if (filters.highFat) {
+      filtered = filtered.filter(meal => meal.fats > 20)
+    }
+
+    if (filters.highCarbs) {
+      filtered = filtered.filter(meal => meal.carbohydrates > 50)
     }
 
     // Применяем сортировку
@@ -88,8 +98,9 @@ export default function Menu() {
           case 'price-desc': return b.price - a.price
           case 'calories-asc': return a.calories - b.calories
           case 'calories-desc': return b.calories - a.calories
-          case 'energy-asc': return a.energyVal - b.energyVal
-          case 'energy-desc': return b.energyVal - a.energyVal
+          case 'protein-desc': return b.proteins - a.proteins
+          case 'fat-desc': return b.fats - a.fats
+          case 'carbs-desc': return b.carbohydrates - a.carbohydrates
           default: return 0
         }
       })
@@ -107,6 +118,7 @@ export default function Menu() {
         <FiltersSheet 
           onFilterChange={handleFilterChange} 
           categories={categories}
+          className="ml-4 md:ml-0"
         />
       </div>
 

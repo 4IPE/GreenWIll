@@ -13,7 +13,9 @@ interface ProductDto {
   calories: number
   category: string
   img: string
-  energyVal: number
+  proteins: number
+  carbohydrates: number
+  fats: number
 }
 
 interface CartItemDto {

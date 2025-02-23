@@ -14,6 +14,8 @@ services:
   gw-frontend:
     build: gw-ui
     image: gw-ui-img
+    env_file:
+      - ./gw-ui/.env.local
     networks:
       - gw-network
     healthcheck:
@@ -25,12 +27,10 @@ services:
     restart: "on-failure"
 
   gw-service:
-    build: gw-service
+    build: ./gw-service
+    env_file:
+      - ./gw-service/.env
     image: gw-service-img
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://gw-db:5432/gw-data
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: 12345
     depends_on:
       - gw-db
       - gw-redis
@@ -57,10 +57,8 @@ services:
     container_name: gw-db-con
     ports:
       - "6542:5432"
-    environment:
-      - POSTGRES_PASSWORD=12345
-      - POSTGRES_USER=admin
-      - POSTGRES_DB=gw-data
+    env_file:
+      - ./gw-db/.env
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s

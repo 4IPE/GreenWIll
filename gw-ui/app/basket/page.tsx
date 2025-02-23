@@ -80,7 +80,6 @@ export default function Basket() {
   const handleCreateOrder = async () => {
     if (!userInfo) return
     
-    // Проверяем наличие необходимых данных
     const missing = []
     if (!userInfo.phone) missing.push('номер телефона')
     if (!userInfo.address) missing.push('адрес доставки')

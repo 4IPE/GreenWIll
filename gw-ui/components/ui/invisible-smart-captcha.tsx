@@ -12,7 +12,7 @@ export function InvisibleSmartCaptcha({ onSuccess }: InvisibleSmartCaptchaProps)
 
   return (
     <YandexCaptcha
-      sitekey="ysc1_azPN0UKsNUkR7JF4dOMhesoixFTeEKfUvqAVqwlkc123083c"
+      sitekey={process.env.NEXT_PUBLIC_YANDEX_CAPTCHA_KEY!}
       onSuccess={onSuccess}
       onChallengeHidden={() => setVisible(false)}
       visible={visible}

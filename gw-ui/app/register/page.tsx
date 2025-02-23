@@ -169,19 +169,15 @@ export default function Register() {
     }
 
     try {
-      await axiosConfig.post('/api/register', {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        termsAccepted: termsAccepted,
-      })
+      // Сначала отправляем запрос на создание кода подтверждения
+      await axiosConfig.post(`/api/create?username=${formData.username}&email=${formData.email}`)
       
       setShowVerification(true)
     } catch (err) {
       const error = err as RegisterError
       toast({
         title: "Ошибка",
-        description: error.response?.data?.message || "Ошибка при регистрации",
+        description: error.response?.data?.message || "Ошибка при отправке кода подтверждения",
         variant: "destructive",
       })
     } finally {
@@ -191,9 +187,11 @@ export default function Register() {
 
   const handleVerificationSubmit = async (code: string) => {
     try {
+      // Сначала проверяем код
       const checkResponse = await axiosConfig.post(`/api/check?username=${formData.username}&key=${code}`)
 
       if (checkResponse.status === 200) {
+        // После успешной проверки кода выполняем регистрацию
         const registerResponse = await axiosConfig.post('/api/register', {
           username: formData.username,
           email: formData.email,
@@ -202,7 +200,6 @@ export default function Register() {
         })
 
         if (registerResponse.status === 200) {
-          // 6. После успешной регистрации выполняем вход
           await axiosConfig.post('/api/login', {
             username: formData.username,
             password: formData.password,
@@ -280,7 +277,7 @@ export default function Register() {
         {/* Левая секция с изображением */}
         <div className="relative w-full md:w-1/2 h-48 md:h-screen overflow-hidden bg-black">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-31 17.23.08 - A breathtaking 4K landscape featuring a dense green forest with tall trees, majestic mountains in the background, a clear blue sky, and a serene river-0yLCMiSFg7mfT9tZNMMDDVfxPv3Skn.png"
+            src="https://i.ibb.co/hJ12VR9y/DALL-E-2024-12-31-17-23-08-A-breathtaking-4-K-landscape-featuring-a-dense-green-forest-with-tall-tre.png"
             alt="Природный пейзаж"
             fill
             className="object-cover opacity-80"
