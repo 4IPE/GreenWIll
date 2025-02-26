@@ -48,9 +48,9 @@ export default function Menu() {
         setMeals(mealsWithCategory)
         setFilteredMeals(mealsWithCategory)
         setCategories(normalizedCategories)
-      } catch (err) {
-        setError('Failed to load data. Please try again later.')
-        console.error('Failed to fetch data:', err)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setError('Ошибка при загрузке данных')
       }
     }
 

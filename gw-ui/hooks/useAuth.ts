@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import axiosConfig from '@/config/axiosConfig'
 
 const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Пути, которые не требуют авторизации
+  const publicRoutes = ['/menu', '/nutrition', '/']
 
   useEffect(() => {
     const checkTokenStatus = async () => {
@@ -15,13 +19,15 @@ const useAuth = () => {
           setIsLoggedIn(true)
         } else {
           setIsLoggedIn(false)
-          if (typeof window !== 'undefined') {
+          // Редиректим только если это не публичный маршрут
+          if (typeof window !== 'undefined' && !publicRoutes.includes(pathname)) {
             router.push('/login')
           }
         }
       } catch (err) {
         setIsLoggedIn(false)
-        if (typeof window !== 'undefined') {
+        // Редиректим только если это не публичный маршрут
+        if (typeof window !== 'undefined' && !publicRoutes.includes(pathname)) {
           router.push('/login')
         }
       } finally {
@@ -32,7 +38,7 @@ const useAuth = () => {
     if (typeof window !== 'undefined') {
       checkTokenStatus()
     }
-  }, [router])
+  }, [router, pathname])
 
   return { isLoggedIn, isLoading }
 }
