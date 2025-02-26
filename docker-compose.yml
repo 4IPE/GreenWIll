@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   gw-client:
-    build: gw-client
     image: gw-client-img
     depends_on:
       - consul
@@ -14,12 +13,16 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
 
   gw-service:
-    build: ./gw-service
+    image: gw-service-img
     env_file:
       - ./gw-service/.env
-    image: gw-service-img
     depends_on:
       - gw-db
       - gw-redis
@@ -34,21 +37,22 @@ services:
       placement:
         constraints:
           - node.labels.type == backend
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
 
   gw-db:
     image: postgres:16.1
-    container_name: gw-db-con
-    env_file:
-      - ./gw-db/.env
-    healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
-      timeout: 5s
-      interval: 5s
-      retries: 10
-    volumes:
-      - gw-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=mydb
     networks:
       - gw-internal
+    volumes:
+      - gw-db-data:/var/lib/postgresql/data
     deploy:
       mode: global
       placement:
@@ -57,11 +61,6 @@ services:
 
   gw-redis:
     image: redis:latest
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     networks:
       - gw-internal
     deploy:
@@ -72,15 +71,10 @@ services:
 
   consul:
     image: consul:1.14.0
-    container_name: consul
     environment:
       - CONSUL_BIND_INTERFACE=eth0
-    ports:
-      - "8500:8500"
-      - "8600:8600/udp"
     networks:
       - gw-internal
-    restart: always
     deploy:
       mode: global
       placement:
@@ -92,7 +86,8 @@ volumes:
 
 networks:
   gw-internal:
-    driver: bridge
+    driver: overlay  # 🔹 Была bridge, теперь overlay!
+    attachable: true
   gw-overlay:
     driver: overlay
     attachable: true
