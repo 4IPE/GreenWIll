@@ -7,7 +7,7 @@ services:
     env_file:
       - ./gw-ui/.env.local
     networks:
-      - gw-network
+      - gw-internal  # 🔹 Локальная сеть
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 10s
@@ -15,7 +15,14 @@ services:
       retries: 3
       start_period: 40s
     restart: "on-failure"
-
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.type == frontend
 
   nginx:
     image: nginx:latest
@@ -26,8 +33,18 @@ services:
     depends_on:
       - gw-frontend
     networks:
-      - gw-network
+      - gw-internal
+      - gw-overlay
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == frontend
 
 networks:
-  gw-network:
+  gw-internal:
     driver: bridge
+  gw-overlay:
+    driver: overlay
+    attachable: true
