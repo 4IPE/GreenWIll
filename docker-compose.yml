@@ -44,10 +44,8 @@ services:
 
   gw-db:
     image: postgres:16.1
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=mydb
+    env_file:
+      - ./gw-db/.env
     networks:
       - gw-overlay
     volumes:
