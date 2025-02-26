@@ -2,59 +2,76 @@ version: '3.8'
 
 services:
   gw-client:
-    build: gw-client
     image: gw-client-img
     depends_on:
       - consul
-      - gw-frontend
     networks:
       - gw-overlay
-    restart: "on-failure"
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
 
   gw-service:
-    build: ./gw-service
+    image: gw-service-img
     env_file:
       - ./gw-service/.env
-    image: gw-service-img
     depends_on:
       - gw-db
       - gw-redis
       - gw-client
     networks:
       - gw-overlay
-    restart: "on-failure"
+    deploy:
+      mode: replicated
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.type == backend
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
 
   gw-db:
     image: postgres:16.1
-    container_name: gw-db-con
-    ports:
-      - "6542:5432"
     env_file:
       - ./gw-db/.env
-    healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
-      timeout: 5s
-      interval: 5s
-      retries: 10
-    volumes:
-      - gw-db-data:/var/lib/postgresql/data
+    ports:
+      - "6542:5432"
     networks:
       - gw-overlay
+    volumes:
+      - gw-db-data:/var/lib/postgresql/data
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
 
   gw-redis:
     image: redis:latest
     ports:
       - "6379:6379"
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     networks:
       - gw-overlay
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
   consul:
     image: consul:1.14.0
-    container_name: consul
     environment:
       - CONSUL_BIND_INTERFACE=eth0
     ports:
@@ -62,10 +79,16 @@ services:
       - "8600:8600/udp" # DNS interface
     networks:
       - gw-overlay
-    restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
 volumes:
   gw-db-data:
 
 networks:
   gw-overlay:
+    driver: overlay
     external: true
