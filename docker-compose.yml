@@ -6,7 +6,6 @@ services:
     image: gw-client-img
     depends_on:
       - consul
-      - gw-frontend
     networks:
       - gw-network
     restart: "on-failure"
