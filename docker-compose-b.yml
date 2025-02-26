@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  gw-client:
+    image: gw-client-img
+    depends_on:
+      - consul
+    networks:
+      - gw-overlay
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+
+  gw-service:
+    image: gw-service-img
+    env_file:
+      - ./gw-service/.env
+    depends_on:
+      - gw-db
+      - gw-redis
+      - gw-client
+    networks:
+      - gw-overlay
+    deploy:
+      mode: replicated
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.type == backend
+      update_config:
+        parallelism: 2
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+
+  gw-db:
+    image: postgres:16.1
+    env_file:
+      - ./gw-db/.env
+    networks:
+      - gw-overlay
+    volumes:
+      - gw-db-data:/var/lib/postgresql/data
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
+  gw-redis:
+    image: redis:latest
+    networks:
+      - gw-overlay
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
+  consul:
+    image: consul:1.14.0
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - gw-overlay
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
+volumes:
+  gw-db-data:
+
+networks:
+  gw-overlay:
+    driver: overlay
+    external: true
