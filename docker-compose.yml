@@ -7,9 +7,13 @@ services:
     depends_on:
       - consul
     networks:
-      - gw-network
-    restart: "on-failure"
-
+      - gw-overlay
+      - gw-internal
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   gw-service:
     build: ./gw-service
@@ -21,15 +25,19 @@ services:
       - gw-redis
       - gw-client
     networks:
-      - gw-network
-    restart: "on-failure"
-
+      - gw-internal
+    deploy:
+      mode: replicated
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.type == backend
 
   gw-db:
     image: postgres:16.1
     container_name: gw-db-con
-    ports:
-      - "6542:5432"
     env_file:
       - ./gw-db/.env
     healthcheck:
@@ -40,33 +48,51 @@ services:
     volumes:
       - gw-db-data:/var/lib/postgresql/data
     networks:
-      - gw-network
+      - gw-internal
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
 
   gw-redis:
     image: redis:latest
-    ports:
-      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
-      - gw-network
+      - gw-internal
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
   consul:
     image: consul:1.14.0
     container_name: consul
     environment:
       - CONSUL_BIND_INTERFACE=eth0
     ports:
-      - "8500:8500" # Consul Web UI
-      - "8600:8600/udp" # DNS interface
+      - "8500:8500"
+      - "8600:8600/udp"
     networks:
-      - gw-network
+      - gw-internal
     restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.type == backend
+
 volumes:
   gw-db-data:
 
 networks:
-  gw-network:
+  gw-internal:
     driver: bridge
+  gw-overlay:
+    driver: overlay
+    attachable: true
