@@ -2,24 +2,14 @@ version: '3.8'
 
 services:
   gw-frontend:
-    build: gw-ui
     image: gw-ui-img
     env_file:
       - ./gw-ui/.env.local
     networks:
-      - gw-internal  # 🔹 Локальная сеть
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
-    restart: "on-failure"
+      - gw-overlay  # 🔹 Фронтенд в `gw-overlay`
     deploy:
       mode: replicated
       replicas: 2
-      restart_policy:
-        condition: on-failure
       placement:
         constraints:
           - node.labels.type == frontend
@@ -33,8 +23,7 @@ services:
     depends_on:
       - gw-frontend
     networks:
-      - gw-internal
-      - gw-overlay
+      - gw-overlay  # 🔹 Nginx тоже в `gw-overlay`
     deploy:
       mode: replicated
       replicas: 1
@@ -43,8 +32,5 @@ services:
           - node.labels.type == frontend
 
 networks:
-  gw-internal:
-    driver: bridge
   gw-overlay:
-    driver: overlay
-    attachable: true
+    external: true
