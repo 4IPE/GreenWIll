@@ -86,6 +86,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 path.startsWith("/create") ||
                 path.startsWith("/check") ||
                 path.startsWith("/user/get") ||
+                path.startsWith("/nutrition/plan") ||
                 path.startsWith("/req/password") ||
                 path.startsWith("/edit/accepted");
     }
