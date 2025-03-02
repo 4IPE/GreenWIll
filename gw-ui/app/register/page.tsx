@@ -206,7 +206,7 @@ export default function Register() {
             description: "Регистрация успешно завершена",
           })
           
-          router.push('/') 
+          window.location.href = '/'
         }
       }
     } catch (err) {
