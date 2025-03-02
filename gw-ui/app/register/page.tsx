@@ -155,6 +155,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLoading) return;
     setIsLoading(true)
     setErrors({
       username: '',
@@ -199,18 +200,13 @@ export default function Register() {
           termsAccepted: termsAccepted,
         })
 
-        if (registerResponse.status === 200) {
-          await axiosConfig.post('/api/login', {
-            username: formData.username,
-            password: formData.password,
-          })
-          
+        if (registerResponse.status === 200) { 
           toast({
             title: "Успех",
             description: "Регистрация успешно завершена",
           })
           
-          router.push('/') // Редирект на главную
+          router.push('/') 
         }
       }
     } catch (err) {

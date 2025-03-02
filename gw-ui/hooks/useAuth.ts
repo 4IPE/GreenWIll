@@ -8,7 +8,6 @@ const useAuth = () => {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Пути, которые не требуют авторизации
   const publicRoutes = ['/menu', '/nutrition', '/', '/register']
 
   useEffect(() => {
@@ -19,14 +18,12 @@ const useAuth = () => {
           setIsLoggedIn(true)
         } else {
           setIsLoggedIn(false)
-          // Редиректим только если это не публичный маршрут
           if (typeof window !== 'undefined' && !publicRoutes.includes(pathname)) {
             router.push('/login')
           }
         }
       } catch (err) {
         setIsLoggedIn(false)
-        // Редиректим только если это не публичный маршрут
         if (typeof window !== 'undefined' && !publicRoutes.includes(pathname)) {
           router.push('/login')
         }
