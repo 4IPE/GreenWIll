@@ -29,7 +29,6 @@ interface RegisterError {
 }
 
 export default function Register() {
-  const router = useRouter()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
