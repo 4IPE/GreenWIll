@@ -115,7 +115,7 @@ public class EmailService {
                     </body>
                     </html>
                     """.formatted(code);
-            log.info("Отправляем на такой email {}", email);
+            log.info("Отправляем на такой email {}", to);
             helper.setFrom(email);
             helper.setTo(to);
             helper.setSubject("Ваш код: " + code + " для подтверждения в сервисе GreenWill");

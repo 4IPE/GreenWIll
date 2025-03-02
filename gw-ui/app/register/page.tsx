@@ -186,25 +186,27 @@ export default function Register() {
 
   const handleVerificationSubmit = async (code: string) => {
     try {
-      // Сначала проверяем код
       const checkResponse = await axiosConfig.post(`/api/check?username=${formData.username}&key=${code}`)
-
+      
       if (checkResponse.status === 200) {
-        // После успешной проверки кода выполняем регистрацию
         const registerResponse = await axiosConfig.post('/api/register', {
           username: formData.username,
           email: formData.email,
           password: formData.password,
           termsAccepted: termsAccepted,
         })
-
-        if (registerResponse.status === 200) { 
+        
+        if (registerResponse.status === 200) {
           toast({
             title: "Успех",
             description: "Регистрация успешно завершена",
           })
           
-          window.location.href = '/'
+          window.localStorage.setItem('block_login_until', (Date.now() + 3000).toString());
+          
+          setTimeout(() => {
+            window.location.href = '/'
+          }, 100)
         }
       }
     } catch (err) {
